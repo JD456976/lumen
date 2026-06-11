@@ -1,13 +1,32 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { colorFor } from '../lib/library'
 
 export default function Research({ vial }) {
+  const components = vial?.components ?? []
+  const [active, setActive] = useState(components[0]?.name || '')
+  const [briefs, setBriefs] = useState({}) // name -> { loading, data, error }
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const context = vial
-    ? `${vial.name} — ${(vial.components || []).map((c) => `${c.name} ${c.mg}mg`).join(', ')}`
-    : null
+  useEffect(() => {
+    if (components[0] && !active) setActive(components[0].name)
+  }, [vial])
+
+  useEffect(() => {
+    if (!active || briefs[active]) return
+    setBriefs((b) => ({ ...b, [active]: { loading: true } }))
+    fetch('/api/brief', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ peptide: active }),
+    })
+      .then((r) => r.json())
+      .then((d) =>
+        setBriefs((b) => ({ ...b, [active]: d.brief ? { data: d.brief } : { error: d.error } })),
+      )
+      .catch((e) => setBriefs((b) => ({ ...b, [active]: { error: String(e) } })))
+  }, [active])
 
   async function send(q) {
     const question = (q ?? input).trim()
@@ -20,7 +39,7 @@ export default function Research({ vial }) {
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages: next, context }),
+        body: JSON.stringify({ messages: next, context: active }),
       })
       const data = await res.json()
       setMessages([...next, { role: 'assistant', content: data.reply || data.error || 'No reply.' }])
@@ -31,45 +50,85 @@ export default function Research({ vial }) {
     }
   }
 
-  const starters = [
-    'Typical dose range and frequency?',
-    'How do people titrate this up?',
-    'Usual cycle length?',
-  ]
+  if (!vial) {
+    return <div className="empty"><i className="ti ti-sparkles" aria-hidden="true" /><p>Pick a vial first.</p></div>
+  }
+
+  const b = briefs[active]
 
   return (
     <div className="page pad">
       <div className="title">Research</div>
-      <div className="muted sm mb">
-        {context ? `About: ${vial.name}` : 'Ask about any peptide.'} · information, not medical advice
-      </div>
+      <div className="muted sm mb">{vial.name} · information, not medical advice</div>
 
-      {messages.length === 0 && (
-        <div className="starters">
-          {starters.map((s) => (
-            <button key={s} className="starter" onClick={() => send(s)}>{s}</button>
+      {components.length > 1 && (
+        <div className="vial-tabs mb">
+          {components.map((c) => (
+            <button
+              key={c.name}
+              className={`vial-tab ${c.name === active ? 'active' : ''}`}
+              onClick={() => setActive(c.name)}
+            >
+              {c.name}
+            </button>
           ))}
         </div>
       )}
 
+      {b?.loading && <div className="muted sm">Preparing briefing for {active}…</div>}
+      {b?.error && <div className="alert">{b.error}</div>}
+      {b?.data && (
+        <div className="brief">
+          <div className="dot-name mb">
+            <span className="dot" style={{ background: colorFor(active) }} />
+            <span className="title sm">{b.data.peptide}</span>
+          </div>
+          <p className="muted sm mb">{b.data.summary}</p>
+          <div className="brief-grid">
+            <Fact icon="ti-ruler-2" label="Dose range" value={b.data.dose_range} />
+            <Fact icon="ti-repeat" label="Frequency" value={b.data.frequency} />
+            <Fact icon="ti-trending-up" label="Titration" value={b.data.titration} />
+            <Fact icon="ti-calendar" label="Cycle" value={b.data.cycle_length} />
+          </div>
+          {b.data.cautions?.length > 0 && (
+            <div className="cautions">
+              <div className="muted xs">WATCH FOR</div>
+              {b.data.cautions.map((c, i) => (
+                <div className="caution" key={i}><i className="ti ti-alert-triangle" aria-hidden="true" /> {c}</div>
+              ))}
+            </div>
+          )}
+          {b.data.evidence_note && <p className="muted xs evidence">{b.data.evidence_note}</p>}
+        </div>
+      )}
+
+      <div className="muted xs mt mb">ASK A FOLLOW-UP</div>
       <div className="chat">
         {messages.map((m, i) => (
           <div key={i} className={`bubble ${m.role}`}>{m.content}</div>
         ))}
         {busy && <div className="bubble assistant muted">Thinking…</div>}
       </div>
-
       <div className="composer">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && send()}
-          placeholder="Ask a follow-up…"
+          placeholder={`Ask about ${active}…`}
         />
         <button className="primary" disabled={busy} onClick={() => send()}>
           <i className="ti ti-arrow-up" aria-hidden="true" />
         </button>
       </div>
+    </div>
+  )
+}
+
+function Fact({ icon, label, value }) {
+  return (
+    <div className="fact">
+      <div className="fact-label"><i className={`ti ${icon}`} aria-hidden="true" /> {label}</div>
+      <div className="fact-value">{value}</div>
     </div>
   )
 }
