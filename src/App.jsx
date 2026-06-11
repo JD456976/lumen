@@ -1,122 +1,128 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useMemo, useState } from 'react'
+import { SEED_VIALS, colorFor } from './lib/library'
+import { doseForDraw, unitsToMl, totalMg, fmtAmount, round } from './lib/calc'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [vial, setVial] = useState(SEED_VIALS[0])
+  const [bacWater, setBacWater] = useState(vial.defaultBacWaterMl)
+  const [draw, setDraw] = useState(vial.defaultDrawUnits)
+
+  function pickVial(v) {
+    setVial(v)
+    setBacWater(v.defaultBacWaterMl)
+    setDraw(v.defaultDrawUnits)
+  }
+
+  const breakdown = useMemo(
+    () => doseForDraw(vial.components, bacWater, draw),
+    [vial, bacWater, draw],
+  )
+  const ml = round(unitsToMl(draw), 2)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <header className="brand">
+        <span className="spark" />
+        <span className="wordmark">lumen</span>
+      </header>
 
-      <div className="ticks"></div>
+      <div className="phone">
+        <div className="screen">
+          <div className="vial-tabs">
+            {SEED_VIALS.map((v) => (
+              <button
+                key={v.id}
+                className={`vial-tab ${v.id === vial.id ? 'active' : ''}`}
+                onClick={() => pickVial(v)}
+              >
+                {v.name}
+              </button>
+            ))}
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <div className="head">
+            <div className="head-row">
+              <span className="muted">Calculator</span>
+              <i className="ti ti-flask-2" aria-hidden="true" />
+            </div>
+            <div className="title">{vial.name}</div>
+            <div className="muted sm">
+              {totalMg(vial.components)} mg blend · {vial.vialMl} mL vial
+            </div>
+          </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          <div className="inputs">
+            <label className="field">
+              <span>Bac water</span>
+              <div className="stepper">
+                <button onClick={() => setBacWater((n) => Math.max(0.5, round(n - 0.5, 1)))}>
+                  <i className="ti ti-minus" aria-hidden="true" />
+                </button>
+                <b>{bacWater} mL</b>
+                <button onClick={() => setBacWater((n) => round(n + 0.5, 1))}>
+                  <i className="ti ti-plus" aria-hidden="true" />
+                </button>
+              </div>
+            </label>
+
+            <label className="field">
+              <span>Draw</span>
+              <div className="stepper">
+                <button onClick={() => setDraw((n) => Math.max(1, n - 1))}>
+                  <i className="ti ti-minus" aria-hidden="true" />
+                </button>
+                <b>{draw} u</b>
+                <button onClick={() => setDraw((n) => Math.min(100, n + 1))}>
+                  <i className="ti ti-plus" aria-hidden="true" />
+                </button>
+              </div>
+            </label>
+          </div>
+
+          <input
+            className="slider"
+            type="range"
+            min="1"
+            max="100"
+            step="1"
+            value={draw}
+            onChange={(e) => setDraw(Number(e.target.value))}
+          />
+
+          <div className="hero">
+            <div className="hero-label">PER DOSE · {ml} mL</div>
+            <div className="hero-row">
+              <span className="hero-num">{draw}</span>
+              <span className="hero-unit">units on a U-100 syringe</span>
+            </div>
+          </div>
+
+          <div className="breakdown">
+            <div className="muted xs">WHAT YOU'RE ACTUALLY GETTING</div>
+            {breakdown.map((b) => (
+              <div className="row" key={b.name}>
+                <span className="dot-name">
+                  <span className="dot" style={{ background: colorFor(b.name) }} />
+                  {b.name}
+                </span>
+                <span className="amt">{fmtAmount(b.mcg)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="actions">
+            <button className="primary">Log dose</button>
+            <button className="ghost" aria-label="Research this blend">
+              <i className="ti ti-sparkles" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p className="disclaimer">
+        Lumen is a personal dosing calculator and log. It is not medical advice.
+      </p>
+    </div>
   )
 }
-
-export default App
