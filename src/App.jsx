@@ -9,6 +9,7 @@ import LogPage from './pages/LogPage'
 import Research from './pages/Research'
 import Sheet from './components/Sheet'
 import LogSheet from './components/LogSheet'
+import Spark from './components/Spark'
 import './App.css'
 
 const TABS = [
@@ -63,7 +64,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="brand">
-        <span className="spark" />
+        <Spark size={24} />
         <span className="wordmark">lumen</span>
         <button className="signout" onClick={() => supabase.auth.signOut()} aria-label="Sign out">
           <i className="ti ti-logout" aria-hidden="true" />

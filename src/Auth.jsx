@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from './lib/supabase'
+import Spark from './components/Spark'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -11,19 +12,28 @@ export default function Auth() {
     e.preventDefault()
     setBusy(true)
     setError(null)
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin },
-    })
-    setBusy(false)
-    if (error) setError(error.message)
-    else setSent(true)
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin },
+      })
+      if (error) setError(error.message)
+      else setSent(true)
+    } catch (err) {
+      // Network-level failure (e.g. "Load failed") — give an actionable hint.
+      setError(
+        `Could not reach the server (${err?.message || err}). If this app was ` +
+          `open before, fully close it and reopen to clear a stale cache, then retry.`,
+      )
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
     <div className="auth">
       <div className="brand">
-        <span className="spark" />
+        <Spark size={40} />
         <span className="wordmark">lumen</span>
       </div>
       {sent ? (
