@@ -189,6 +189,10 @@
   background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
   border-radius: 12px; padding: 12px; font: inherit; font-size: 14px;
 }
+.link-btn {
+  background: none; border: none; color: var(--amber-deep); cursor: pointer;
+  font-size: 13px; padding: 4px; text-decoration: underline;
+}
 
 /* ── vials page ── */
 .head-row .title { font-size: 18px; }
