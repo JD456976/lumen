@@ -97,3 +97,95 @@
 .ghost .ti { font-size: 18px; }
 
 .disclaimer { color: #6a6a72; font-size: 12px; text-align: center; max-width: 320px; }
+
+/* ── shell ── */
+.app { position: relative; }
+.boot { justify-content: center; color: var(--muted); }
+.signout { margin-left: 6px; background: none; border: none; color: var(--muted); cursor: pointer; }
+.signout .ti { font-size: 18px; }
+
+.surface {
+  width: 360px; max-width: 100%;
+  background: var(--panel); border-radius: 22px; overflow: hidden;
+  box-shadow: 0 0 0 1px #26262d; min-height: 520px; padding-bottom: 8px;
+}
+
+.page { padding-top: 6px; }
+.pad { padding: 16px 18px; }
+.mb { margin-bottom: 10px; }
+.mt { margin-top: 12px; }
+.title.sm { font-size: 15px; }
+
+/* ── bottom nav ── */
+.bottom-nav {
+  display: flex; width: 360px; max-width: 100%;
+  background: #101015; border-radius: 16px; padding: 6px; gap: 4px;
+  box-shadow: 0 0 0 1px #26262d;
+}
+.nav-item {
+  flex: 1; background: none; border: none; cursor: pointer; color: var(--muted);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 4px; border-radius: 12px; font-size: 11px;
+}
+.nav-item .ti { font-size: 20px; }
+.nav-item.active { color: var(--amber); background: #1c1810; }
+
+/* ── add / parser ── */
+.ta {
+  width: 100%; background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 12px; color: var(--text); padding: 12px; font: inherit;
+  font-size: 14px; resize: vertical;
+}
+.file { width: 46px; cursor: pointer; }
+.wide { flex: 1; padding: 12px; border-radius: 12px; font-size: 13px; }
+.alert {
+  margin-top: 12px; background: #2a1414; border: 1px solid #4a1f1f;
+  color: #f0999a; border-radius: 10px; padding: 10px; font-size: 13px;
+}
+.draft {
+  margin-top: 16px; background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 14px; padding: 14px;
+}
+
+/* ── log ── */
+.log-card {
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+}
+.log-top { display: flex; justify-content: space-between; align-items: center; }
+.icon-btn { background: none; border: none; color: var(--muted); cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip {
+  background: #221d12; color: var(--amber-deep); font-size: 12px;
+  padding: 4px 9px; border-radius: 999px;
+}
+
+/* ── research chat ── */
+.starters { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.starter {
+  background: var(--panel-2); border: 1px solid var(--line); color: #e4e4e8;
+  border-radius: 10px; padding: 10px 12px; text-align: left; font-size: 13px; cursor: pointer;
+}
+.chat { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.bubble { border-radius: 14px; padding: 10px 12px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+.bubble.user { background: #2a2410; color: #f4e4bf; align-self: flex-end; max-width: 85%; }
+.bubble.assistant { background: var(--panel-2); color: #e4e4e8; align-self: flex-start; max-width: 95%; }
+.composer { display: flex; gap: 8px; }
+.composer input {
+  flex: 1; background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 12px; padding: 11px; font: inherit; font-size: 14px;
+}
+.composer .primary { flex: 0 0 46px; padding: 0; }
+
+/* ── empty / auth ── */
+.empty {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 48px 24px; text-align: center; color: #c7c7cd;
+}
+.empty .ti { font-size: 30px; color: var(--amber); }
+.auth { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 48px 24px; }
+.auth-form { display: flex; flex-direction: column; gap: 10px; width: 260px; }
+.auth-form input {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 12px; padding: 12px; font: inherit; font-size: 14px;
+}
