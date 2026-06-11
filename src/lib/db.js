@@ -30,6 +30,17 @@ export async function addVial(v) {
   return data
 }
 
+export async function updateVial(id, patch) {
+  const { data, error } = await supabase
+    .from('vials')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 export async function archiveVial(id) {
   const { error } = await supabase.from('vials').update({ archived: true }).eq('id', id)
   if (error) throw error

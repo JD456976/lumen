@@ -189,3 +189,55 @@
   background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
   border-radius: 12px; padding: 12px; font: inherit; font-size: 14px;
 }
+
+/* ── vials page ── */
+.head-row .title { font-size: 18px; }
+.pill {
+  background: var(--amber); color: var(--amber-ink); border: none; border-radius: 999px;
+  padding: 7px 14px; font-size: 13px; font-weight: 500; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.vial-card {
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+}
+.vc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.vc-actions { display: flex; gap: 4px; }
+.dots { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.dots .dot-name { font-size: 12px; color: #c7c7cd; }
+
+/* ── sheet ── */
+.sheet-backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.55);
+  display: flex; align-items: flex-end; justify-content: center; z-index: 20;
+}
+.sheet {
+  width: 360px; max-width: 100%; max-height: 90%; overflow-y: auto;
+  background: #16161c; border-radius: 20px 20px 0 0; padding: 16px 18px 22px;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+}
+.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
+/* ── forms ── */
+.form { display: flex; flex-direction: column; }
+.lbl { font-size: 11px; color: var(--muted); letter-spacing: 0.03em; margin: 10px 0 4px; }
+.in {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 10px; padding: 11px; font: inherit; font-size: 14px; width: 100%;
+}
+.comp-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.comp-row .flex { flex: 1; }
+.comp-row .mg { width: 72px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.block { width: 100%; }
+
+/* ── add choices ── */
+.choices { display: flex; gap: 10px; }
+.choice {
+  flex: 1; background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 14px; padding: 16px 12px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+}
+.choice .ti { font-size: 24px; color: var(--amber); }
+.choice span { font-size: 14px; font-weight: 500; }
+.choice small { font-size: 11px; color: var(--muted); }

@@ -2,9 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { colorFor } from '../lib/library'
 import { doseForDraw, unitsToMl, totalMg, fmtAmount, round } from '../lib/calc'
 
-export default function Calculator({ vials, onLog }) {
+export default function Calculator({ vials, onLog, onActiveVial }) {
   const [vialId, setVialId] = useState(vials[0]?.id)
   const vial = vials.find((v) => v.id === vialId) || vials[0]
+
+  useEffect(() => {
+    if (vial && onActiveVial) onActiveVial(vial)
+  }, [vialId, vial, onActiveVial])
 
   const [bacWater, setBacWater] = useState(vial?.default_bac_water_ml ?? 2)
   const [draw, setDraw] = useState(vial?.default_draw_units ?? 20)
