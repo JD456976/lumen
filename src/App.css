@@ -39,10 +39,15 @@
 }
 .screen { background: var(--panel); border-radius: 20px; overflow: hidden; padding-bottom: 16px; }
 
-.vial-tabs { display: flex; gap: 6px; padding: 14px 14px 4px; }
+.vial-tabs {
+  display: flex; gap: 6px; padding: 14px 14px 4px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.vial-tabs::-webkit-scrollbar { display: none; }
 .vial-tab {
-  flex: 1; background: var(--panel-2); color: var(--muted);
-  border: none; border-radius: 10px; padding: 8px; font-size: 12px; cursor: pointer;
+  flex: 0 0 auto; max-width: 150px; background: var(--panel-2); color: var(--muted);
+  border: none; border-radius: 10px; padding: 8px 12px; font-size: 12px; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .vial-tab.active { background: #2a2410; color: var(--amber); }
 
