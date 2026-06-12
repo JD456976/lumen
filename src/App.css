@@ -72,6 +72,43 @@
 
 .slider { width: calc(100% - 28px); margin: 4px 14px 12px; accent-color: var(--amber); }
 
+/* ── calculator extras ── */
+.syringe-wrap { padding: 4px 14px 2px; }
+.seg {
+  display: flex; gap: 4px; margin: 0 14px 10px; background: var(--panel-2);
+  border-radius: 10px; padding: 3px;
+}
+.seg button {
+  flex: 1; background: none; border: none; color: var(--muted); cursor: pointer;
+  padding: 7px; border-radius: 8px; font-size: 12px;
+}
+.seg button.on { background: #2a2410; color: var(--amber); }
+.dose-in { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.dose-in input {
+  flex: 1; min-width: 0; background: #15151a; border: 1px solid var(--line); color: var(--text);
+  border-radius: 8px; padding: 7px 8px; font: inherit; font-size: 14px;
+}
+.dose-in button {
+  width: 30px; height: 30px; border: none; border-radius: 8px; cursor: pointer;
+  background: var(--amber); color: var(--amber-ink); display: flex; align-items: center; justify-content: center;
+}
+.target-pick { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 14px 8px; }
+.mini {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--muted);
+  border-radius: 999px; padding: 5px 11px; font-size: 12px; cursor: pointer;
+}
+.mini.on { background: #2a2410; color: var(--amber); border-color: #3a2f17; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 14px 0; }
+.stat { background: var(--panel-2); border-radius: 12px; padding: 10px 12px; }
+.stat-val { font-size: 18px; font-weight: 500; margin-top: 2px; }
+.stat-val small { font-size: 12px; color: var(--muted); font-weight: 400; }
+.recon {
+  margin: 10px 14px 2px; background: #14181a; border: 1px solid #1f2a2c;
+  border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #9fc7c0;
+  display: flex; gap: 7px; align-items: flex-start;
+}
+.recon .ti { color: #5dcaa5; font-size: 15px; flex: 0 0 auto; margin-top: 1px; }
+
 .hero {
   margin: 0 14px 14px; background: #1a160f; border: 1px solid #3a2f17;
   border-radius: 14px; padding: 14px;

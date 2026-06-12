@@ -43,6 +43,13 @@ export function totalMg(components) {
   return components.reduce((s, c) => s + c.mg, 0)
 }
 
+// How many doses of this draw size the reconstituted vial yields.
+export function dosesPerVial(bacWaterMl, drawUnits) {
+  const perDose = unitsToMl(drawUnits)
+  if (!bacWaterMl || perDose <= 0) return 0
+  return bacWaterMl / perDose
+}
+
 // Pretty mcg/mg formatting — mg once we cross 1000 mcg.
 export function fmtAmount(mcg) {
   if (mcg >= 1000) {
