@@ -65,6 +65,7 @@ export default function LogPage({ refreshKey }) {
             </div>
             <div className="muted sm">
               {new Date(l.taken_at).toLocaleString()} · {l.draw_units} u
+              {l.site && ` · ${l.site}`}
               {l.status === 'skipped' && ' · skipped'}
             </div>
             <div className="chips">

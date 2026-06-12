@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { fmtAmount } from '../lib/calc'
+import { listLogs } from '../lib/db'
+import BodyMap from './BodyMap'
 
 // Local datetime string for <input type="datetime-local">
 function nowLocal() {
@@ -12,7 +14,13 @@ export default function LogSheet({ draft, onConfirm, onClose }) {
   const [takenAt, setTakenAt] = useState(nowLocal())
   const [sideEffects, setSideEffects] = useState('')
   const [notes, setNotes] = useState('')
+  const [site, setSite] = useState(null)
+  const [recentLogs, setRecentLogs] = useState([])
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    listLogs().then(setRecentLogs).catch(() => setRecentLogs([]))
+  }, [])
 
   async function confirm() {
     setBusy(true)
@@ -21,6 +29,7 @@ export default function LogSheet({ draft, onConfirm, onClose }) {
       taken_at: new Date(takenAt).toISOString(),
       side_effects: sideEffects.trim() || null,
       notes: notes.trim() || null,
+      site,
     })
     setBusy(false)
   }
@@ -36,6 +45,9 @@ export default function LogSheet({ draft, onConfirm, onClose }) {
 
       <label className="lbl">When</label>
       <input className="in" type="datetime-local" value={takenAt} onChange={(e) => setTakenAt(e.target.value)} />
+
+      <label className="lbl">Injection site</label>
+      <BodyMap logs={recentLogs} value={site} onChange={setSite} />
 
       <label className="lbl">Side effects</label>
       <input className="in" value={sideEffects} onChange={(e) => setSideEffects(e.target.value)} placeholder="none / flushing / nausea…" />

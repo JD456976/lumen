@@ -362,6 +362,19 @@ select.in { appearance: none; background-image: none; }
 .choice small { font-size: 10px; color: var(--muted); line-height: 1.2; }
 .choices .choice { padding: 14px 8px; }
 
+/* ── body map ── */
+.bodymap {
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px; margin-top: 4px;
+}
+.bodymap svg { max-height: 280px; display: block; margin: 0 auto; }
+.bm-legend {
+  display: flex; justify-content: center; gap: 14px; margin-top: 6px;
+  font-size: 11px; color: var(--muted);
+}
+.bm-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.bm-selected { text-align: center; margin-top: 6px; }
+
 /* ── library browser ── */
 .lib-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; max-height: 50vh; overflow-y: auto; }
 .lib-item {
