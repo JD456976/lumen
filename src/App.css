@@ -455,3 +455,15 @@ input:focus, textarea:focus, select:focus {
 @media (prefers-reduced-motion: reduce) {
   *, .view, .surface, .sheet, .spark { animation: none !important; }
 }
+
+/* batch: skip button, ok note, bac chips */
+.skip-btn {
+  flex: 0 0 auto; background: var(--panel-2); border: 1px solid var(--line); color: #e0a36a;
+  border-radius: 12px; padding: 12px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.ok-note {
+  margin-top: 12px; background: #14201a; border: 1px solid #1f3a2c; color: #7fd0a8;
+  border-radius: 10px; padding: 10px; font-size: 13px;
+}
+.bac-chips { display: flex; align-items: center; gap: 6px; padding: 0 14px 10px; }
+.bac-chips .xs { margin-right: 2px; }

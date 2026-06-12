@@ -10,6 +10,7 @@ import LogPage from './pages/LogPage'
 import Research from './pages/Research'
 import Sheet from './components/Sheet'
 import LogSheet from './components/LogSheet'
+import Settings from './components/Settings'
 import Spark from './components/Spark'
 import './App.css'
 
@@ -28,6 +29,7 @@ export default function App() {
   const [activeVial, setActiveVial] = useState(null)
   const [logRefresh, setLogRefresh] = useState(0)
   const [logDraft, setLogDraft] = useState(null)
+  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -68,8 +70,8 @@ export default function App() {
       <header className="brand">
         <Spark size={24} />
         <span className="wordmark">lumen</span>
-        <button className="signout" onClick={() => supabase.auth.signOut()} aria-label="Sign out">
-          <i className="ti ti-logout" aria-hidden="true" />
+        <button className="signout" onClick={() => setShowSettings(true)} aria-label="Settings">
+          <i className="ti ti-settings" aria-hidden="true" />
         </button>
       </header>
 
@@ -103,6 +105,12 @@ export default function App() {
       {logDraft && (
         <Sheet title="Log dose" onClose={() => setLogDraft(null)}>
           <LogSheet draft={logDraft} onConfirm={confirmLog} onClose={() => setLogDraft(null)} />
+        </Sheet>
+      )}
+
+      {showSettings && (
+        <Sheet title="Settings" onClose={() => setShowSettings(false)}>
+          <Settings email={session.user?.email} />
         </Sheet>
       )}
     </div>

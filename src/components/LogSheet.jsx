@@ -22,7 +22,7 @@ export default function LogSheet({ draft, onConfirm, onClose }) {
     listLogs().then(setRecentLogs).catch(() => setRecentLogs([]))
   }, [])
 
-  async function confirm() {
+  async function confirm(status = 'taken') {
     setBusy(true)
     await onConfirm({
       ...draft,
@@ -30,6 +30,7 @@ export default function LogSheet({ draft, onConfirm, onClose }) {
       side_effects: sideEffects.trim() || null,
       notes: notes.trim() || null,
       site,
+      status,
     })
     setBusy(false)
   }
@@ -44,7 +45,10 @@ export default function LogSheet({ draft, onConfirm, onClose }) {
       </div>
 
       <label className="lbl">When</label>
-      <input className="in" type="datetime-local" value={takenAt} onChange={(e) => setTakenAt(e.target.value)} />
+      <div className="dose-in">
+        <input className="in" type="datetime-local" value={takenAt} onChange={(e) => setTakenAt(e.target.value)} />
+        <button className="mini" onClick={() => setTakenAt(nowLocal())}>Now</button>
+      </div>
 
       <label className="lbl">Injection site</label>
       <BodyMap logs={recentLogs} value={site} onChange={setSite} />
@@ -56,8 +60,8 @@ export default function LogSheet({ draft, onConfirm, onClose }) {
       <textarea className="in" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="optional" />
 
       <div className="actions mt">
-        <button className="primary block" disabled={busy} onClick={confirm}>{busy ? 'Saving…' : 'Save to log'}</button>
-        <button className="ghost wide" onClick={onClose}>Cancel</button>
+        <button className="primary block" disabled={busy} onClick={() => confirm('taken')}>{busy ? 'Saving…' : 'Save to log'}</button>
+        <button className="skip-btn" disabled={busy} onClick={() => confirm('skipped')}>Skip</button>
       </div>
     </div>
   )

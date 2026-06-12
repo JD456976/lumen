@@ -134,6 +134,15 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
         )}
       </div>
 
+      <div className="bac-chips">
+        <span className="muted xs">BAC</span>
+        {[1, 2, 3, 5].map((v) => (
+          <button key={v} className={`mini ${bacWater === v ? 'on' : ''}`} onClick={() => setBacWater(v)}>
+            {v} mL
+          </button>
+        ))}
+      </div>
+
       {mode === 'dose' && components.length > 1 && (
         <div className="target-pick">
           {components.map((c) => (
