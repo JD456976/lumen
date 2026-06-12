@@ -74,13 +74,15 @@ export default function App() {
       </header>
 
       <main className="surface">
-        {tab === 'calc' && (
-          <Calculator vials={vials} onActiveVial={setActiveVial} onLog={setLogDraft} />
-        )}
-        {tab === 'vials' && <Vials vials={vials} onChanged={refreshVials} />}
-        {tab === 'protocols' && <Protocols vials={vials} onLog={setLogDraft} />}
-        {tab === 'log' && <LogPage refreshKey={logRefresh} />}
-        {tab === 'research' && <Research vial={activeVial || vials[0]} />}
+        <div className="view" key={tab}>
+          {tab === 'calc' && (
+            <Calculator vials={vials} onActiveVial={setActiveVial} onLog={setLogDraft} />
+          )}
+          {tab === 'vials' && <Vials vials={vials} onChanged={refreshVials} />}
+          {tab === 'protocols' && <Protocols vials={vials} onLog={setLogDraft} />}
+          {tab === 'log' && <LogPage refreshKey={logRefresh} />}
+          {tab === 'research' && <Research vial={activeVial || vials[0]} />}
+        </div>
       </main>
 
       <nav className="bottom-nav">

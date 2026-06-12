@@ -14,15 +14,20 @@
 
 .app {
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(245, 198, 107, 0.06), transparent 60%),
+    var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
-  padding: 2rem 1rem 2.5rem;
+  padding: 2rem 1rem calc(2.5rem + env(safe-area-inset-bottom));
 }
+.title, .wordmark { font-family: 'Inter Tight', 'Inter', sans-serif; letter-spacing: -0.02em; }
 
 .brand { display: flex; align-items: center; gap: 12px; }
 .spark {
@@ -398,3 +403,55 @@ select.in { appearance: none; background-image: none; }
   background: #1c2426; color: #8fb8b1; font-size: 11px; padding: 3px 8px; border-radius: 999px;
 }
 .ai-fallback { margin-top: 14px; }
+
+/* ════════ POLISH LAYER ════════ */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sparkPulse { 0%, 100% { box-shadow: 0 0 16px 4px rgba(245,198,107,0.55); } 50% { box-shadow: 0 0 22px 7px rgba(245,198,107,0.85); } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+
+* { -webkit-tap-highlight-color: transparent; }
+
+.view { animation: fadeUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.surface { animation: popIn 0.3s ease both; box-shadow: 0 24px 60px -24px rgba(0,0,0,0.7), 0 0 0 1px #26262d; }
+.spark { animation: sparkPulse 3.6s ease-in-out infinite; }
+
+/* refined interaction states */
+button { transition: transform 0.12s ease, background 0.18s ease, color 0.18s ease, border-color 0.18s ease, opacity 0.18s ease; }
+button:active { transform: scale(0.97); }
+.nav-item { transition: color 0.2s ease, background 0.2s ease; }
+.nav-item.active { animation: popIn 0.2s ease both; }
+.nav-item.active .ti { filter: drop-shadow(0 0 6px rgba(245,198,107,0.5)); }
+
+/* card depth + entrance */
+.vial-card, .proto-card, .log-card, .lib-item, .brief, .insystem, .cal, .hero, .bodymap, .stat, .reminder-banner {
+  transition: transform 0.15s ease, border-color 0.2s ease;
+}
+.vial-card:active, .proto-card:active, .lib-item:active { transform: scale(0.992); }
+.hero { box-shadow: inset 0 0 30px -10px rgba(245,198,107,0.18); }
+.hero-num { transition: none; }
+
+/* sheets */
+.sheet-backdrop { animation: backdropIn 0.2s ease both; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.sheet { animation: sheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+
+/* breakdown rows stagger in */
+.breakdown .row { animation: fadeUp 0.3s ease both; }
+.breakdown .row:nth-child(2) { animation-delay: 0.03s; }
+.breakdown .row:nth-child(3) { animation-delay: 0.06s; }
+.breakdown .row:nth-child(4) { animation-delay: 0.09s; }
+
+/* inputs focus glow */
+input:focus, textarea:focus, select:focus {
+  outline: none; border-color: var(--amber-deep) !important;
+  box-shadow: 0 0 0 3px rgba(245,198,107,0.12);
+}
+
+/* primary button sheen */
+.primary { box-shadow: 0 6px 18px -8px rgba(245,198,107,0.6); }
+.pill { box-shadow: 0 4px 14px -6px rgba(245,198,107,0.6); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, .view, .surface, .sheet, .spark { animation: none !important; }
+}
