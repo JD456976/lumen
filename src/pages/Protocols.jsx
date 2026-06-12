@@ -5,12 +5,36 @@ import { nextDue, fmtNext, frequencyLabel } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
 import ProtocolForm from '../components/ProtocolForm'
+import { pushSupported, isSubscribed, enableReminders, disableReminders } from '../lib/push'
 
 export default function Protocols({ vials, onLog }) {
   const [protocols, setProtocols] = useState([])
   const [logged, setLogged] = useState({})
   const [loading, setLoading] = useState(true)
   const [sheet, setSheet] = useState(false)
+  const [subbed, setSubbed] = useState(false)
+  const [pushBusy, setPushBusy] = useState(false)
+
+  useEffect(() => {
+    if (pushSupported()) isSubscribed().then(setSubbed).catch(() => {})
+  }, [])
+
+  async function toggleReminders() {
+    setPushBusy(true)
+    try {
+      if (subbed) {
+        await disableReminders()
+        setSubbed(false)
+      } else {
+        await enableReminders()
+        setSubbed(true)
+      }
+    } catch (e) {
+      alert(e.message || String(e))
+    } finally {
+      setPushBusy(false)
+    }
+  }
 
   async function refresh() {
     try {
@@ -43,6 +67,13 @@ export default function Protocols({ vials, onLog }) {
           <i className="ti ti-plus" aria-hidden="true" /> New
         </button>
       </div>
+
+      {pushSupported() && (
+        <button className={`reminder-banner ${subbed ? 'on' : ''}`} disabled={pushBusy} onClick={toggleReminders}>
+          <i className={`ti ${subbed ? 'ti-bell-ringing' : 'ti-bell'}`} aria-hidden="true" />
+          <span>{pushBusy ? '…' : subbed ? 'Reminders on — tap to turn off' : 'Enable dose reminders'}</span>
+        </button>
+      )}
 
       {protocols.length === 0 && (
         <div className="muted sm">No protocols yet. Schedule a vial to see next-due times and supply.</div>

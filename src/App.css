@@ -252,6 +252,16 @@
 .dots { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 .dots .dot-name { font-size: 12px; color: #c7c7cd; }
 
+/* ── reminder banner ── */
+.reminder-banner {
+  width: 100%; display: flex; align-items: center; gap: 8px; cursor: pointer;
+  background: var(--panel-2); border: 1px solid var(--line); color: #d8d8dc;
+  border-radius: 12px; padding: 11px 12px; font-size: 13px; margin-bottom: 12px;
+}
+.reminder-banner .ti { font-size: 18px; color: var(--amber); }
+.reminder-banner.on { background: #14181a; border-color: #1f2a2c; color: #9fc7c0; }
+.reminder-banner.on .ti { color: #5dcaa5; }
+
 /* ── calendar ── */
 .cal {
   background: var(--panel-2); border: 1px solid var(--line);

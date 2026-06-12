@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
+      injectManifest: { maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 },
       includeAssets: ['apple-touch-icon.png', 'favicon.png'],
       manifest: {
         name: 'Lumen',
