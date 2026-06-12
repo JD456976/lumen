@@ -72,3 +72,44 @@ export async function deleteLog(id) {
   const { error } = await supabase.from('dose_logs').delete().eq('id', id)
   if (error) throw error
 }
+
+// ---- protocols ----
+export async function listProtocols() {
+  const { data, error } = await supabase
+    .from('protocols')
+    .select('*, vial:vials(*)')
+    .eq('active', true)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function addProtocol(p) {
+  const { data: u } = await supabase.auth.getUser()
+  const { data, error } = await supabase
+    .from('protocols')
+    .insert({ user_id: u.user.id, ...p })
+    .select('*, vial:vials(*)')
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateProtocol(id, patch) {
+  const { error } = await supabase.from('protocols').update(patch).eq('id', id)
+  if (error) throw error
+}
+
+export async function endProtocol(id) {
+  const { error } = await supabase.from('protocols').update({ active: false }).eq('id', id)
+  if (error) throw error
+}
+
+// Count of doses logged per vial_id — used for supply remaining.
+export async function dosesLoggedByVial() {
+  const { data, error } = await supabase.from('dose_logs').select('vial_id')
+  if (error) throw error
+  const counts = {}
+  for (const r of data) if (r.vial_id) counts[r.vial_id] = (counts[r.vial_id] || 0) + 1
+  return counts
+}

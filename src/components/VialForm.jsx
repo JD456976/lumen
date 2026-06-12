@@ -9,6 +9,7 @@ export default function VialForm({ existing, prefill, onDone }) {
   const [vialMl, setVialMl] = useState(seed.vial_ml ?? seed.vialMl ?? '')
   const [bac, setBac] = useState(seed.default_bac_water_ml ?? 2)
   const [draw, setDraw] = useState(seed.default_draw_units ?? 20)
+  const [onHand, setOnHand] = useState(seed.vials_on_hand ?? 1)
   const [components, setComponents] = useState(
     (seed.components && seed.components.length ? seed.components : [{ ...blank }]).map((c) => ({
       name: c.name || '',
@@ -45,6 +46,7 @@ export default function VialForm({ existing, prefill, onDone }) {
         components: cleaned,
         default_bac_water_ml: Number(bac),
         default_draw_units: Number(draw),
+        vials_on_hand: onHand === '' ? 1 : Number(onHand),
       }
       const saved = existing?.id
         ? await updateVial(existing.id, payload)
@@ -86,6 +88,9 @@ export default function VialForm({ existing, prefill, onDone }) {
           <input className="in" type="number" inputMode="decimal" value={bac} onChange={(e) => setBac(e.target.value)} />
         </div>
       </div>
+
+      <label className="lbl">Vials on hand</label>
+      <input className="in" type="number" inputMode="decimal" value={onHand} onChange={(e) => setOnHand(e.target.value)} />
 
       {error && <div className="alert">{error}</div>}
       <button className="primary block mt" disabled={busy} onClick={save}>

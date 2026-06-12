@@ -5,6 +5,7 @@ import { listVials, addLog } from './lib/db'
 import Auth from './Auth'
 import Calculator from './pages/Calculator'
 import Vials from './pages/Vials'
+import Protocols from './pages/Protocols'
 import LogPage from './pages/LogPage'
 import Research from './pages/Research'
 import Sheet from './components/Sheet'
@@ -13,8 +14,9 @@ import Spark from './components/Spark'
 import './App.css'
 
 const TABS = [
-  { id: 'calc', label: 'Calculator', icon: 'ti-calculator' },
+  { id: 'calc', label: 'Calc', icon: 'ti-calculator' },
   { id: 'vials', label: 'Vials', icon: 'ti-flask-2' },
+  { id: 'protocols', label: 'Protocols', icon: 'ti-clipboard-check' },
   { id: 'log', label: 'Log', icon: 'ti-clipboard-list' },
   { id: 'research', label: 'Research', icon: 'ti-sparkles' },
 ]
@@ -76,6 +78,7 @@ export default function App() {
           <Calculator vials={vials} onActiveVial={setActiveVial} onLog={setLogDraft} />
         )}
         {tab === 'vials' && <Vials vials={vials} onChanged={refreshVials} />}
+        {tab === 'protocols' && <Protocols vials={vials} onLog={setLogDraft} />}
         {tab === 'log' && <LogPage refreshKey={logRefresh} />}
         {tab === 'research' && <Research vial={activeVial || vials[0]} />}
       </main>
