@@ -262,6 +262,16 @@
 .reminder-banner.on { background: #14181a; border-color: #1f2a2c; color: #9fc7c0; }
 .reminder-banner.on .ti { color: #5dcaa5; }
 
+/* ── in your system ── */
+.insystem {
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 14px;
+}
+.is-row { margin-bottom: 10px; }
+.is-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.is-level { font-size: 15px; font-weight: 500; color: var(--text); }
+.is-note { margin-top: 4px; font-style: italic; }
+
 /* ── calendar ── */
 .cal {
   background: var(--panel-2); border: 1px solid var(--line);

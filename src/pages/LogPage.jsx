@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { listLogs, listProtocols, deleteLog } from '../lib/db'
 import { fmtAmount } from '../lib/calc'
 import Calendar from '../components/Calendar'
+import InSystem from '../components/InSystem'
 
 export default function LogPage({ refreshKey }) {
   const [logs, setLogs] = useState([])
@@ -38,6 +39,8 @@ export default function LogPage({ refreshKey }) {
   return (
     <div className="page pad">
       <div className="title mb">Log</div>
+
+      <InSystem logs={logs} />
 
       <Calendar logs={logs} protocols={protocols} selected={selected} onSelect={setSelected} />
 
