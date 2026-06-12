@@ -467,3 +467,10 @@ input:focus, textarea:focus, select:focus {
 }
 .bac-chips { display: flex; align-items: center; gap: 6px; padding: 0 14px 10px; }
 .bac-chips .xs { margin-right: 2px; }
+
+/* batch 2: adherence bar, stack item */
+.adh { margin-top: 8px; }
+.adh-bar { height: 5px; background: #232329; border-radius: 999px; overflow: hidden; }
+.adh-bar span { display: block; height: 100%; background: linear-gradient(90deg, #d9774f, #f5c66b); }
+.adh-val { font-size: 11px; color: var(--muted); margin-top: 3px; display: block; }
+.lib-item.stack { border-color: #3a2f17; }

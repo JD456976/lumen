@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { listProtocols, endProtocol, dosesLoggedByVial } from '../lib/db'
+import { listProtocols, endProtocol, listLogs } from '../lib/db'
 import { doseForDraw, dosesPerVial, fmtAmount, round } from '../lib/calc'
-import { nextDue, fmtNext, frequencyLabel } from '../lib/schedule'
+import { nextDue, fmtNext, frequencyLabel, adherence } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
 import ProtocolForm from '../components/ProtocolForm'
@@ -9,7 +9,7 @@ import { pushSupported, isSubscribed, enableReminders, disableReminders } from '
 
 export default function Protocols({ vials, onLog }) {
   const [protocols, setProtocols] = useState([])
-  const [logged, setLogged] = useState({})
+  const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [sheet, setSheet] = useState(false)
   const [subbed, setSubbed] = useState(false)
@@ -38,9 +38,9 @@ export default function Protocols({ vials, onLog }) {
 
   async function refresh() {
     try {
-      const [p, l] = await Promise.all([listProtocols(), dosesLoggedByVial()])
+      const [p, l] = await Promise.all([listProtocols(), listLogs()])
       setProtocols(p)
-      setLogged(l)
+      setLogs(l)
     } catch {
       setProtocols([])
     } finally {
@@ -84,10 +84,11 @@ export default function Protocols({ vials, onLog }) {
         if (!v) return null
         const breakdown = doseForDraw(v.components, p.bac_water_ml, p.draw_units)
         const capacity = (v.vials_on_hand || 1) * dosesPerVial(p.bac_water_ml, p.draw_units)
-        const used = logged[v.id] || 0
+        const used = logs.filter((l) => l.vial_id === v.id && l.status !== 'skipped').length
         const left = Math.max(0, Math.floor(capacity - used))
         const low = left <= (v.low_stock_doses || 5)
         const due = nextDue(p)
+        const adh = adherence(p, logs)
         return (
           <div className="proto-card" key={p.id}>
             <div className="vc-top">
@@ -112,9 +113,15 @@ export default function Protocols({ vials, onLog }) {
               <span className="next"><i className="ti ti-clock" aria-hidden="true" /> {fmtNext(due)}</span>
               <span className={`supply ${low ? 'low' : ''}`}>
                 {low && <i className="ti ti-alert-triangle" aria-hidden="true" />}
-                ≈ {left} doses left
+                ≈ {left} left
               </span>
             </div>
+            {adh != null && (
+              <div className="adh">
+                <div className="adh-bar"><span style={{ width: `${adh}%` }} /></div>
+                <span className="adh-val">{adh}% · 30d adherence</span>
+              </div>
+            )}
 
             <button
               className="primary block mt"

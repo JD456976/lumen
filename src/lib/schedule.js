@@ -44,6 +44,28 @@ export function isDueOn(p, date) {
   return activeDays(p).includes(date.getDay())
 }
 
+// Adherence % over the last `days`: taken / scheduled occurrences.
+export function adherence(p, logs, days = 30, now = new Date()) {
+  if (p.frequency === 'as_needed') return null
+  const today = new Date(now)
+  today.setHours(0, 0, 0, 0)
+  const start = new Date(today)
+  start.setDate(start.getDate() - (days - 1))
+  const pStart = p.start_date ? new Date(p.start_date + 'T00:00:00') : start
+  const from = pStart > start ? pStart : start
+
+  let scheduled = 0
+  for (let d = new Date(from); d <= today; d.setDate(d.getDate() + 1)) {
+    if (isDueOn(p, d)) scheduled++
+  }
+  if (!scheduled) return null
+  const fromMs = from.getTime()
+  const taken = logs.filter(
+    (l) => l.protocol_id === p.id && l.status !== 'skipped' && new Date(l.taken_at).getTime() >= fromMs,
+  ).length
+  return Math.min(100, Math.round((taken / scheduled) * 100))
+}
+
 export function frequencyLabel(p) {
   switch (p.frequency) {
     case 'daily':

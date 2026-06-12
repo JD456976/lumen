@@ -1,17 +1,27 @@
 import { useState } from 'react'
-import { searchLibrary } from '../lib/library'
+import { searchLibrary, searchStacks } from '../lib/library'
 
 export default function LibraryBrowser({ onPick }) {
   const [q, setQ] = useState('')
   const [aiBusy, setAiBusy] = useState(false)
   const [error, setError] = useState(null)
   const results = searchLibrary(q)
+  const stacks = searchStacks(q)
 
   function pickSeed(p) {
     onPick({
       name: p.name,
       components: [{ name: p.name, mg: p.typical_vial_mg }],
       default_bac_water_ml: p.typical_bac_ml,
+      vial_ml: null,
+    })
+  }
+
+  function pickStack(s) {
+    onPick({
+      name: s.name,
+      components: s.components.map((c) => ({ ...c })),
+      default_bac_water_ml: s.default_bac_water_ml,
       vial_ml: null,
     })
   }
@@ -54,6 +64,18 @@ export default function LibraryBrowser({ onPick }) {
         autoFocus
       />
       <div className="lib-list">
+        {stacks.length > 0 && <div className="muted xs">STACKS</div>}
+        {stacks.map((s) => (
+          <button className="lib-item stack" key={s.name} onClick={() => pickStack(s)}>
+            <div className="lib-top">
+              <span className="title sm">{s.name}</span>
+              <span className="lib-persona">{s.components.length} peptides</span>
+            </div>
+            <div className="muted sm">{s.blurb}</div>
+            <div className="chips">{s.tags.map((t) => <span className="tag" key={t}>{t}</span>)}</div>
+          </button>
+        ))}
+        {results.length > 0 && <div className="muted xs" style={{ marginTop: 6 }}>PEPTIDES</div>}
         {results.map((p) => (
           <button className="lib-item" key={p.name} onClick={() => pickSeed(p)}>
             <div className="lib-top">
@@ -68,7 +90,7 @@ export default function LibraryBrowser({ onPick }) {
         ))}
       </div>
 
-      {results.length === 0 && (
+      {results.length === 0 && stacks.length === 0 && (
         <div className="ai-fallback">
           <div className="muted sm mb">Not in the library.</div>
           <button className="primary block" disabled={aiBusy} onClick={aiLookup}>
