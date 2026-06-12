@@ -252,6 +252,34 @@
 .dots { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 .dots .dot-name { font-size: 12px; color: #c7c7cd; }
 
+/* ── calendar ── */
+.cal {
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px; margin-bottom: 14px;
+}
+.cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-grid.dow { margin-bottom: 4px; }
+.cal-dow { text-align: center; font-size: 11px; color: var(--muted); }
+.cal-cell {
+  position: relative; aspect-ratio: 1; background: none; border: none; cursor: pointer;
+  color: #d8d8dc; font-size: 13px; border-radius: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.cal-cell.today { background: #1c1c22; color: var(--amber); }
+.cal-cell.sel { outline: 1.5px solid var(--amber); }
+.cal-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.cal-dot.completed { background: #5dcaa5; }
+.cal-dot.skipped { background: #c79b4e; }
+.cal-dot.missed { background: #d9534f; }
+.cal-dot.upcoming { background: #5b9bd5; }
+.cal-legend {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;
+  font-size: 11px; color: var(--muted);
+}
+.cal-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.sel-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+
 /* ── protocols ── */
 .proto-card {
   background: var(--panel-2); border: 1px solid var(--line);

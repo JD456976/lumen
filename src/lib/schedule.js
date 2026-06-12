@@ -32,6 +32,18 @@ export function isDueToday(p, now = new Date()) {
   return activeDays(p).includes(now.getDay())
 }
 
+// Was this protocol scheduled on a given calendar date?
+export function isDueOn(p, date) {
+  if (p.frequency === 'as_needed') return false
+  if (p.start_date) {
+    const start = new Date(p.start_date + 'T00:00:00')
+    const d = new Date(date)
+    d.setHours(0, 0, 0, 0)
+    if (d < start) return false
+  }
+  return activeDays(p).includes(date.getDay())
+}
+
 export function frequencyLabel(p) {
   switch (p.frequency) {
     case 'daily':
