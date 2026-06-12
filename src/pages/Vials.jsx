@@ -4,10 +4,11 @@ import { totalMg } from '../lib/calc'
 import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
 import VialForm from '../components/VialForm'
+import LibraryBrowser from '../components/LibraryBrowser'
 import AddVial from './AddVial'
 
 export default function Vials({ vials, onChanged }) {
-  const [sheet, setSheet] = useState(null) // 'choose' | 'manual' | 'scan' | {edit}
+  const [sheet, setSheet] = useState(null) // 'choose'|'manual'|'scan'|'library'|{edit}|{prefill}
   const persisted = vials.filter((v) => v.persisted)
 
   async function remove(v) {
@@ -71,15 +72,20 @@ export default function Vials({ vials, onChanged }) {
       {sheet === 'choose' && (
         <Sheet title="Add a vial" onClose={close}>
           <div className="choices">
+            <button className="choice" onClick={() => setSheet('library')}>
+              <i className="ti ti-books" aria-hidden="true" />
+              <span>From library</span>
+              <small>Browse or AI lookup</small>
+            </button>
             <button className="choice" onClick={() => setSheet('scan')}>
               <i className="ti ti-camera" aria-hidden="true" />
               <span>Scan or paste</span>
-              <small>Screenshot or product text</small>
+              <small>Screenshot or text</small>
             </button>
             <button className="choice" onClick={() => setSheet('manual')}>
               <i className="ti ti-pencil" aria-hidden="true" />
-              <span>Enter manually</span>
-              <small>Type it in yourself</small>
+              <span>Manual</span>
+              <small>Type it in</small>
             </button>
           </div>
         </Sheet>
@@ -88,6 +94,18 @@ export default function Vials({ vials, onChanged }) {
       {sheet === 'manual' && (
         <Sheet title="New vial" onClose={close}>
           <VialForm onDone={afterSave} />
+        </Sheet>
+      )}
+
+      {sheet === 'library' && (
+        <Sheet title="From library" onClose={close}>
+          <LibraryBrowser onPick={(prefill) => setSheet({ prefill })} />
+        </Sheet>
+      )}
+
+      {sheet?.prefill && (
+        <Sheet title={`Add ${sheet.prefill.name}`} onClose={close}>
+          <VialForm prefill={sheet.prefill} onDone={afterSave} />
         </Sheet>
       )}
 

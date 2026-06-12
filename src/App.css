@@ -357,6 +357,21 @@ select.in { appearance: none; background-image: none; }
   border-radius: 14px; padding: 16px 12px; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
 }
-.choice .ti { font-size: 24px; color: var(--amber); }
-.choice span { font-size: 14px; font-weight: 500; }
-.choice small { font-size: 11px; color: var(--muted); }
+.choice .ti { font-size: 22px; color: var(--amber); }
+.choice span { font-size: 13px; font-weight: 500; }
+.choice small { font-size: 10px; color: var(--muted); line-height: 1.2; }
+.choices .choice { padding: 14px 8px; }
+
+/* ── library browser ── */
+.lib-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; max-height: 50vh; overflow-y: auto; }
+.lib-item {
+  text-align: left; background: var(--panel-2); border: 1px solid var(--line); color: #d8d8dc;
+  border-radius: 12px; padding: 11px 12px; cursor: pointer;
+}
+.lib-top { display: flex; justify-content: space-between; align-items: baseline; }
+.lib-persona { font-size: 11px; color: var(--amber-deep); font-style: italic; }
+.lib-item .chips { margin-top: 6px; }
+.tag {
+  background: #1c2426; color: #8fb8b1; font-size: 11px; padding: 3px 8px; border-radius: 999px;
+}
+.ai-fallback { margin-top: 14px; }
