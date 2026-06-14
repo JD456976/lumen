@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
+import { marked } from 'marked'
 import { colorFor } from '../lib/library'
+
+marked.setOptions({ breaks: true })
 
 export default function Research({ vial }) {
   const components = vial?.components ?? []
@@ -36,10 +39,19 @@ export default function Research({ vial }) {
     setInput('')
     setBusy(true)
     try {
+      const compList = (vial?.components || []).map((c) => `${c.name} ${c.mg}mg`).join(', ')
+      const context =
+        vial && components.length > 1
+          ? `The user's vial "${vial.name}" is a blend containing: ${compList}. ` +
+            `If they mention "${vial.name}" or "the blend", treat it as this combination. ` +
+            `They are currently focused on ${active}.`
+          : vial
+            ? `The user's vial "${vial.name}" contains ${compList || active}.`
+            : null
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages: next, context: active }),
+        body: JSON.stringify({ messages: next, context }),
       })
       const data = await res.json()
       setMessages([...next, { role: 'assistant', content: data.reply || data.error || 'No reply.' }])
@@ -104,9 +116,13 @@ export default function Research({ vial }) {
 
       <div className="muted xs mt mb">ASK A FOLLOW-UP</div>
       <div className="chat">
-        {messages.map((m, i) => (
-          <div key={i} className={`bubble ${m.role}`}>{m.content}</div>
-        ))}
+        {messages.map((m, i) =>
+          m.role === 'assistant' ? (
+            <div key={i} className="bubble assistant md" dangerouslySetInnerHTML={{ __html: marked.parse(m.content) }} />
+          ) : (
+            <div key={i} className="bubble user">{m.content}</div>
+          ),
+        )}
         {busy && <div className="bubble assistant muted">Thinking…</div>}
       </div>
       <div className="composer">

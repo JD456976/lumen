@@ -474,3 +474,22 @@ input:focus, textarea:focus, select:focus {
 .adh-bar span { display: block; height: 100%; background: linear-gradient(90deg, #d9774f, #f5c66b); }
 .adh-val { font-size: 11px; color: var(--muted); margin-top: 3px; display: block; }
 .lib-item.stack { border-color: #3a2f17; }
+
+/* markdown in AI replies */
+.bubble.md { white-space: normal; }
+.bubble.md > :first-child { margin-top: 0; }
+.bubble.md > :last-child { margin-bottom: 0; }
+.bubble.md h1, .bubble.md h2, .bubble.md h3 {
+  font-family: 'Inter Tight', sans-serif; font-size: 14px; font-weight: 600;
+  margin: 12px 0 5px; color: #f4f4f6;
+}
+.bubble.md p { margin: 6px 0; }
+.bubble.md ul, .bubble.md ol { margin: 6px 0; padding-left: 18px; }
+.bubble.md li { margin: 3px 0; }
+.bubble.md strong { color: #f5d99a; font-weight: 600; }
+.bubble.md code {
+  background: #2a2a31; padding: 1px 5px; border-radius: 4px; font-size: 12px;
+  font-family: ui-monospace, monospace;
+}
+.bubble.md a { color: #5dcaa5; }
+.bubble.md hr { border: none; border-top: 1px solid var(--line); margin: 10px 0; }
