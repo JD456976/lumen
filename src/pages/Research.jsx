@@ -99,9 +99,19 @@ export default function Research({ vial }) {
           <div className="brief-grid">
             <Fact icon="ti-ruler-2" label="Dose range" value={b.data.dose_range} />
             <Fact icon="ti-repeat" label="Frequency" value={b.data.frequency} />
+            <Fact icon="ti-clock-hour-8" label="Best time" value={b.data.best_time} />
+            <Fact icon="ti-salt" label="Fasting / food" value={b.data.fasting} />
             <Fact icon="ti-trending-up" label="Titration" value={b.data.titration} />
             <Fact icon="ti-calendar" label="Cycle" value={b.data.cycle_length} />
           </div>
+          {b.data.side_effects?.length > 0 && (
+            <div className="cautions">
+              <div className="muted xs">SIDE EFFECTS</div>
+              {b.data.side_effects.map((s, i) => (
+                <div className="caution" key={i}><i className="ti ti-activity-heartbeat" aria-hidden="true" /> {s}</div>
+              ))}
+            </div>
+          )}
           {b.data.cautions?.length > 0 && (
             <div className="cautions">
               <div className="muted xs">WATCH FOR</div>
@@ -141,6 +151,7 @@ export default function Research({ vial }) {
 }
 
 function Fact({ icon, label, value }) {
+  if (!value) return null
   return (
     <div className="fact">
       <div className="fact-label"><i className={`ti ${icon}`} aria-hidden="true" /> {label}</div>

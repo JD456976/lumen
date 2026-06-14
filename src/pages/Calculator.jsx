@@ -5,9 +5,12 @@ import {
   concentration, fmtAmount, round, SYRINGES,
 } from '../lib/calc'
 import SyringeBar from '../components/SyringeBar'
+import Sheet from '../components/Sheet'
+import PeptideInfo from '../components/PeptideInfo'
 
 export default function Calculator({ vials, onLog, onActiveVial }) {
   const [tool, setTool] = useState('dose') // 'dose' | 'recon'
+  const [infoName, setInfoName] = useState(null)
   const [vialId, setVialId] = useState(vials[0]?.id)
   const vial = vials.find((v) => v.id === vialId) || vials[0]
 
@@ -158,10 +161,10 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
           <div className="breakdown">
             <div className="muted xs">WHAT YOU'RE ACTUALLY GETTING</div>
             {breakdown.map((b) => (
-              <div className="row" key={b.name}>
+              <button className="row row-btn" key={b.name} onClick={() => setInfoName(b.name)}>
                 <span className="dot-name"><span className="dot" style={{ background: colorFor(b.name) }} />{b.name}</span>
-                <span className="amt">{fmtAmount(b.mcg)}</span>
-              </div>
+                <span className="amt">{fmtAmount(b.mcg)} <i className="ti ti-info-circle" aria-hidden="true" /></span>
+              </button>
             ))}
           </div>
 
@@ -231,6 +234,12 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
             Add {reconBac} mL bacteriostatic water to the {reconMg} mg vial.
           </div>
         </div>
+      )}
+
+      {infoName && (
+        <Sheet title={infoName} onClose={() => setInfoName(null)}>
+          <PeptideInfo name={infoName} />
+        </Sheet>
       )}
     </div>
   )
