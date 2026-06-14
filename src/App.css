@@ -493,3 +493,8 @@ input:focus, textarea:focus, select:focus {
 }
 .bubble.md a { color: #5dcaa5; }
 .bubble.md hr { border: none; border-top: 1px solid var(--line); margin: 10px 0; }
+
+/* markdown tables in AI replies (narrow bubble) */
+.bubble.md table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; display: block; overflow-x: auto; }
+.bubble.md th, .bubble.md td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; }
+.bubble.md th { background: #1c1c22; color: #f4f4f6; font-weight: 600; }
