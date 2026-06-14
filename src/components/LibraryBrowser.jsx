@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { searchLibrary, searchStacks } from '../lib/library'
+import PeptideInfo from './PeptideInfo'
 
 export default function LibraryBrowser({ onPick }) {
   const [q, setQ] = useState('')
+  const [info, setInfo] = useState(null) // { name, seed } | { name, ai:true }
   const [aiBusy, setAiBusy] = useState(false)
   const [error, setError] = useState(null)
   const results = searchLibrary(q)
@@ -26,9 +28,7 @@ export default function LibraryBrowser({ onPick }) {
     })
   }
 
-  async function aiLookup() {
-    const name = q.trim()
-    if (!name) return
+  async function aiAdd(name) {
     setAiBusy(true)
     setError(null)
     try {
@@ -54,6 +54,27 @@ export default function LibraryBrowser({ onPick }) {
     }
   }
 
+  // Info detail view
+  if (info) {
+    return (
+      <div className="form">
+        <button className="link-btn" onClick={() => setInfo(null)}>
+          <i className="ti ti-chevron-left" aria-hidden="true" /> Back
+        </button>
+        <div className="title sm" style={{ marginTop: 6 }}>{info.name}</div>
+        <PeptideInfo
+          name={info.name}
+          seed={info.seed}
+          onAdd={
+            aiBusy
+              ? undefined
+              : () => (info.seed ? pickSeed(info.seed) : aiAdd(info.name))
+          }
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="form">
       <input
@@ -77,7 +98,7 @@ export default function LibraryBrowser({ onPick }) {
         ))}
         {results.length > 0 && <div className="muted xs" style={{ marginTop: 6 }}>PEPTIDES</div>}
         {results.map((p) => (
-          <button className="lib-item" key={p.name} onClick={() => pickSeed(p)}>
+          <button className="lib-item" key={p.name} onClick={() => setInfo({ name: p.name, seed: p })}>
             <div className="lib-top">
               <span className="title sm">{p.name}</span>
               <span className="lib-persona">{p.persona}</span>
@@ -90,11 +111,11 @@ export default function LibraryBrowser({ onPick }) {
         ))}
       </div>
 
-      {results.length === 0 && stacks.length === 0 && (
+      {results.length === 0 && stacks.length === 0 && q.trim() && (
         <div className="ai-fallback">
           <div className="muted sm mb">Not in the library.</div>
-          <button className="primary block" disabled={aiBusy} onClick={aiLookup}>
-            <i className="ti ti-sparkles" aria-hidden="true" /> {aiBusy ? 'Looking up…' : `Look up “${q.trim()}” with AI`}
+          <button className="primary block" disabled={aiBusy} onClick={() => setInfo({ name: q.trim() })}>
+            <i className="ti ti-sparkles" aria-hidden="true" /> Look up “{q.trim()}”
           </button>
           {error && <div className="alert">{error}</div>}
         </div>

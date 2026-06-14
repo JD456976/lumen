@@ -498,3 +498,20 @@ input:focus, textarea:focus, select:focus {
 .bubble.md table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; display: block; overflow-x: auto; }
 .bubble.md th, .bubble.md td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; }
 .bubble.md th { background: #1c1c22; color: #f4f4f6; font-weight: 600; }
+
+/* calculator tools restructure */
+.tool-seg { margin: 0 14px 4px; }
+.tool-seg button { font-size: 12px; }
+.seg-sm { display: flex; gap: 4px; margin: 0 14px 10px; background: var(--panel-2); border-radius: 10px; padding: 3px; }
+.seg-sm button { flex: 1; background: none; border: none; color: var(--muted); cursor: pointer; padding: 6px; border-radius: 8px; font-size: 12px; }
+.seg-sm button.on { background: #2a2410; color: var(--amber); }
+.recon-tool .two { margin-bottom: 8px; }
+.recon-table { background: var(--panel-2); border-radius: 12px; padding: 4px 12px; margin-bottom: 10px; }
+.recon-table .row { font-size: 13px; }
+
+/* peptide info sheet */
+.pinfo .lib-persona { font-style: italic; font-size: 12px; }
+.pinfo-summary { font-size: 14px; line-height: 1.5; color: #d8d8dc; margin: 8px 0 12px; }
+.pinfo-block { margin-top: 10px; }
+.pinfo .brief-grid { margin-bottom: 4px; }
+.pinfo .caution .ti { color: #d9774f; }

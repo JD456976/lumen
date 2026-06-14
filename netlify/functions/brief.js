@@ -5,16 +5,20 @@ const SYSTEM = `You produce a structured research briefing for a single peptide.
 Return ONLY a JSON object, no prose, in this exact shape:
 {
   "peptide": string,
-  "summary": string,                  // one sentence on what it's researched for
+  "summary": string,                  // 1-2 sentences: what it is and what it's researched for
   "dose_range": string,               // typical range with units, e.g. "200–500 mcg/day"
   "frequency": string,                // e.g. "once or twice daily"
   "titration": string,                // how people commonly ramp up
-  "cycle_length": string,             // typical on/off cycle
-  "cautions": string[],               // 2-4 short bullet points
+  "cycle_length": string,             // typical length of time to run it / on-off cycle
+  "best_time": string,                // best time of day to take and why (e.g. "before bed — GH pulse")
+  "fasting": string,                  // fasting/food guidance (e.g. "inject fasted; avoid carbs/fat 2h around dose")
+  "side_effects": string[],           // 2-5 commonly reported side effects
+  "cautions": string[],               // 2-4 safety/handling cautions
   "evidence_note": string             // one line on how strong/anecdotal the data is
 }
 Rules:
 - Use ranges, not single numbers. Be concrete with units (mcg/mg).
+- best_time and fasting: give practical, specific guidance; if it doesn't matter for this peptide, say so plainly.
 - This is informational, not medical advice; reflect that peptide dosing is largely community-derived.
 - If data is genuinely sparse for this peptide, say so in evidence_note and keep ranges conservative.`
 
@@ -42,7 +46,7 @@ export default async (req) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 800,
+        max_tokens: 1100,
         system: SYSTEM,
         messages: [{ role: 'user', content: `Briefing for: ${name}` }],
       }),

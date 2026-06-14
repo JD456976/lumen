@@ -4,12 +4,19 @@
 
 export const UNITS_PER_ML = 100
 
-export function unitsToMl(units) {
-  return units / UNITS_PER_ML
+// Insulin syringe scales: units that equal 1.0 mL.
+export const SYRINGES = [
+  { id: 'U-100', unitsPerMl: 100 },
+  { id: 'U-50', unitsPerMl: 50 },
+  { id: 'U-40', unitsPerMl: 40 },
+]
+
+export function unitsToMl(units, unitsPerMl = UNITS_PER_ML) {
+  return units / unitsPerMl
 }
 
-export function mlToUnits(ml) {
-  return ml * UNITS_PER_ML
+export function mlToUnits(ml, unitsPerMl = UNITS_PER_ML) {
+  return ml * unitsPerMl
 }
 
 // concentration of a single component, in mg/mL, after reconstitution
@@ -20,8 +27,8 @@ export function concentration(componentMg, bacWaterMl) {
 
 // Given a vial (components + bac water) and a draw in units, return the
 // per-component delivered amount. Each entry: { name, mg, mcg }.
-export function doseForDraw(components, bacWaterMl, drawUnits) {
-  const ml = unitsToMl(drawUnits)
+export function doseForDraw(components, bacWaterMl, drawUnits, unitsPerMl = UNITS_PER_ML) {
+  const ml = unitsToMl(drawUnits, unitsPerMl)
   return components.map((c) => {
     const mg = concentration(c.mg, bacWaterMl) * ml
     return { name: c.name, mg, mcg: mg * 1000 }
@@ -29,14 +36,14 @@ export function doseForDraw(components, bacWaterMl, drawUnits) {
 }
 
 // Reverse: how many units delivers `targetMcg` of the named component?
-export function drawForTarget(components, bacWaterMl, componentName, targetMcg) {
+export function drawForTarget(components, bacWaterMl, componentName, targetMcg, unitsPerMl = UNITS_PER_ML) {
   const c = components.find((x) => x.name === componentName)
   if (!c) return 0
   const conc = concentration(c.mg, bacWaterMl) // mg/mL
   if (conc <= 0) return 0
   const targetMg = targetMcg / 1000
   const ml = targetMg / conc
-  return mlToUnits(ml)
+  return mlToUnits(ml, unitsPerMl)
 }
 
 export function totalMg(components) {
@@ -44,8 +51,8 @@ export function totalMg(components) {
 }
 
 // How many doses of this draw size the reconstituted vial yields.
-export function dosesPerVial(bacWaterMl, drawUnits) {
-  const perDose = unitsToMl(drawUnits)
+export function dosesPerVial(bacWaterMl, drawUnits, unitsPerMl = UNITS_PER_ML) {
+  const perDose = unitsToMl(drawUnits, unitsPerMl)
   if (!bacWaterMl || perDose <= 0) return 0
   return bacWaterMl / perDose
 }
