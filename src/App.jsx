@@ -3,9 +3,9 @@ import { supabase } from './lib/supabase'
 import { SEED_VIALS } from './lib/library'
 import { listVials, addLog } from './lib/db'
 import Auth from './Auth'
+import Today from './pages/Today'
 import Calculator from './pages/Calculator'
-import Vials from './pages/Vials'
-import Protocols from './pages/Protocols'
+import Stack from './pages/Stack'
 import LogPage from './pages/LogPage'
 import Research from './pages/Research'
 import Sheet from './components/Sheet'
@@ -15,16 +15,16 @@ import Spark from './components/Spark'
 import './App.css'
 
 const TABS = [
+  { id: 'today', label: 'Today', icon: 'ti-home' },
   { id: 'calc', label: 'Calc', icon: 'ti-calculator' },
-  { id: 'vials', label: 'Vials', icon: 'ti-flask-2' },
-  { id: 'protocols', label: 'Protocols', icon: 'ti-clipboard-check' },
+  { id: 'stack', label: 'Stack', icon: 'ti-stack-2' },
   { id: 'log', label: 'Log', icon: 'ti-clipboard-list' },
   { id: 'research', label: 'Research', icon: 'ti-sparkles' },
 ]
 
 export default function App() {
   const [session, setSession] = useState(undefined)
-  const [tab, setTab] = useState('calc')
+  const [tab, setTab] = useState('today')
   const [vials, setVials] = useState([])
   const [activeVial, setActiveVial] = useState(null)
   const [logRefresh, setLogRefresh] = useState(0)
@@ -77,11 +77,11 @@ export default function App() {
 
       <main className="surface">
         <div className="view" key={tab}>
+          {tab === 'today' && <Today onLog={setLogDraft} refreshKey={logRefresh} />}
           {tab === 'calc' && (
             <Calculator vials={vials} onActiveVial={setActiveVial} onLog={setLogDraft} />
           )}
-          {tab === 'vials' && <Vials vials={vials} onChanged={refreshVials} />}
-          {tab === 'protocols' && <Protocols vials={vials} onLog={setLogDraft} />}
+          {tab === 'stack' && <Stack vials={vials} onLog={setLogDraft} onChanged={refreshVials} />}
           {tab === 'log' && <LogPage refreshKey={logRefresh} />}
           {tab === 'research' && <Research vial={activeVial || vials[0]} />}
         </div>

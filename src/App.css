@@ -520,3 +520,42 @@ input:focus, textarea:focus, select:focus {
 .row-btn { width: 100%; background: none; border: none; cursor: pointer; font: inherit; text-align: left; }
 .row-btn .amt { display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
 .row-btn .amt .ti { color: var(--muted); font-size: 15px; }
+
+/* ════════ Today home ════════ */
+.today-head { margin-bottom: 14px; }
+.section-h { margin: 14px 0 8px; }
+.lowstock-banner {
+  display: flex; align-items: center; gap: 8px; background: #2a1a14; border: 1px solid #4a2f1f;
+  color: #e0a36a; border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 10px;
+}
+.lowstock-banner .ti { color: #d9774f; font-size: 18px; flex: 0 0 auto; }
+.lowstock-banner strong { color: #f0c08a; font-weight: 600; }
+
+.today-card {
+  display: flex; align-items: center; gap: 12px; background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 10px;
+  transition: opacity 0.2s ease;
+}
+.today-card.done { opacity: 0.55; }
+.tc-time {
+  flex: 0 0 auto; font-size: 12px; font-weight: 600; color: var(--amber-deep);
+  font-family: 'Inter Tight', sans-serif; width: 58px; text-align: center;
+}
+.tc-body { flex: 1; min-width: 0; }
+.tc-body .chips { margin-top: 6px; }
+.tc-body .chip { display: inline-flex; align-items: center; gap: 5px; }
+.tc-body .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+.tc-log {
+  flex: 0 0 auto; background: var(--amber); color: var(--amber-ink); border: none;
+  border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.tc-done {
+  flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; background: #14201a;
+  color: #5dcaa5; display: flex; align-items: center; justify-content: center;
+}
+.tc-done .ti { font-size: 18px; }
+.upnext {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px; margin-top: 6px;
+}
+.stack-divider { height: 1px; background: var(--line); margin: 4px 18px 0; }
