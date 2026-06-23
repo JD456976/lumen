@@ -1,7 +1,12 @@
-import { precacheAndRoute } from 'workbox-precaching'
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 
 // Precache the built app shell (injected at build time).
+cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
+
+// Activate new versions immediately instead of waiting for all tabs to close.
+self.addEventListener('install', () => self.skipWaiting())
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
 
 self.addEventListener('push', (event) => {
   let data = {}
