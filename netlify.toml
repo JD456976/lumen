@@ -35,6 +35,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/dose-rec"
+  to = "/.netlify/functions/dose-rec"
+  status = 200
+
+[[redirects]]
   from = "/api/ai"
   to = "/.netlify/functions/ai"
   status = 200

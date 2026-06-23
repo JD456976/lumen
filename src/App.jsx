@@ -86,7 +86,15 @@ export default function App() {
 
       <main className="surface">
         <div className="view" key={tab}>
-          {tab === 'today' && <Today onLog={setLogDraft} onQuickLog={quickLog} refreshKey={logRefresh} />}
+          {tab === 'today' && (
+            <Today
+              vials={vials}
+              onLog={setLogDraft}
+              onQuickLog={quickLog}
+              onChanged={() => { refreshVials(); setLogRefresh((n) => n + 1) }}
+              refreshKey={logRefresh}
+            />
+          )}
           {tab === 'calc' && (
             <Calculator vials={vials} onActiveVial={setActiveVial} onLog={setLogDraft} />
           )}

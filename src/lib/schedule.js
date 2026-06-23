@@ -12,24 +12,29 @@ function activeDays(p) {
   return p.days_of_week || []
 }
 
+export function daysSinceStart(p, date = new Date()) {
+  if (!p.start_date) return 0
+  const start = new Date(p.start_date + 'T00:00:00')
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  return Math.max(0, Math.round((d - start) / 86400000))
+}
+
 // Next scheduled datetime at or after `now`, or null for as-needed.
 export function nextDue(p, now = new Date()) {
   if (p.frequency === 'as_needed') return null
-  const days = activeDays(p)
-  if (!days.length) return null
   const [h, m] = parseTime(p.time_of_day)
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < 21; i++) {
     const d = new Date(now)
     d.setDate(now.getDate() + i)
     d.setHours(h, m, 0, 0)
-    if (days.includes(d.getDay()) && d > now) return d
+    if (isDueOn(p, d) && d > now) return d
   }
   return null
 }
 
 export function isDueToday(p, now = new Date()) {
-  if (p.frequency === 'as_needed') return false
-  return activeDays(p).includes(now.getDay())
+  return isDueOn(p, now)
 }
 
 // Whole weeks elapsed since the protocol's start date.
@@ -76,6 +81,7 @@ export function isDueOn(p, date) {
     d.setHours(0, 0, 0, 0)
     if (d < start) return false
   }
+  if (p.frequency === 'eod') return daysSinceStart(p, date) % 2 === 0 && isOnWeek(p, date)
   return activeDays(p).includes(date.getDay()) && isOnWeek(p, date)
 }
 
@@ -105,6 +111,8 @@ export function frequencyLabel(p) {
   switch (p.frequency) {
     case 'daily':
       return 'Daily'
+    case 'eod':
+      return 'Every other day'
     case 'as_needed':
       return 'As needed'
     case 'weekly':
