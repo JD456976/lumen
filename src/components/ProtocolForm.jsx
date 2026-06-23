@@ -18,8 +18,21 @@ export default function ProtocolForm({ vials, onDone }) {
   const [frequency, setFrequency] = useState('daily')
   const [days, setDays] = useState([1]) // Mon default
   const [time, setTime] = useState('08:00')
+  const [phases, setPhases] = useState([]) // [{weeks, draw_units}]
+  const [cycleOn, setCycleOn] = useState('')
+  const [cycleOff, setCycleOff] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+
+  function addPhase() {
+    setPhases((ps) => [...ps, { weeks: 2, draw_units: Number(draw) || 20 }])
+  }
+  function setPhase(i, key, val) {
+    setPhases((ps) => ps.map((p, idx) => (idx === i ? { ...p, [key]: val } : p)))
+  }
+  function removePhase(i) {
+    setPhases((ps) => ps.filter((_, idx) => idx !== i))
+  }
 
   function pickVial(id) {
     setVialId(id)
@@ -48,6 +61,11 @@ export default function ProtocolForm({ vials, onDone }) {
         frequency,
         days_of_week: frequency === 'daily' || frequency === 'as_needed' ? [] : days,
         time_of_day: time,
+        phases: phases
+          .filter((p) => Number(p.weeks) > 0 && Number(p.draw_units) > 0)
+          .map((p) => ({ weeks: Number(p.weeks), draw_units: Number(p.draw_units) })),
+        cycle_weeks_on: Number(cycleOn) || 0,
+        cycle_weeks_off: Number(cycleOff) || 0,
       })
       onDone()
     } catch (e) {
@@ -111,6 +129,31 @@ export default function ProtocolForm({ vials, onDone }) {
           <input className="in" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
         </>
       )}
+
+      <label className="lbl">Titration schedule <span className="muted">(optional)</span></label>
+      {phases.length === 0 && <div className="muted sm mb">No ramp — uses the draw above for the whole run.</div>}
+      {phases.map((ph, i) => (
+        <div className="comp-row" key={i}>
+          <input className="in mg" type="number" inputMode="numeric" value={ph.weeks} onChange={(e) => setPhase(i, 'weeks', e.target.value)} placeholder="wks" />
+          <span className="muted sm">weeks @</span>
+          <input className="in mg" type="number" inputMode="numeric" value={ph.draw_units} onChange={(e) => setPhase(i, 'draw_units', e.target.value)} placeholder="u" />
+          <span className="muted sm">u</span>
+          <button className="icon-btn" aria-label="Remove phase" onClick={() => removePhase(i)}><i className="ti ti-x" aria-hidden="true" /></button>
+        </div>
+      ))}
+      <button className="ghost wide" onClick={addPhase}><i className="ti ti-plus" aria-hidden="true" /> Add phase</button>
+
+      <label className="lbl">Cycle <span className="muted">(optional — 0 = continuous)</span></label>
+      <div className="two">
+        <div>
+          <label className="lbl">Weeks on</label>
+          <input className="in" type="number" inputMode="numeric" value={cycleOn} onChange={(e) => setCycleOn(e.target.value)} placeholder="0" />
+        </div>
+        <div>
+          <label className="lbl">Weeks off</label>
+          <input className="in" type="number" inputMode="numeric" value={cycleOff} onChange={(e) => setCycleOff(e.target.value)} placeholder="0" />
+        </div>
+      </div>
 
       {error && <div className="alert">{error}</div>}
       <button className="primary block mt" disabled={busy} onClick={save}>

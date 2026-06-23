@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listProtocols, endProtocol, listLogs } from '../lib/db'
 import { doseForDraw, dosesPerVial, fmtAmount, round } from '../lib/calc'
-import { nextDue, fmtNext, frequencyLabel, adherence } from '../lib/schedule'
+import { nextDue, fmtNext, frequencyLabel, adherence, currentDraw, cycleLabel } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
 import ProtocolForm from '../components/ProtocolForm'
@@ -82,8 +82,11 @@ export default function Protocols({ vials, onLog }) {
       {protocols.map((p) => {
         const v = p.vial
         if (!v) return null
-        const breakdown = doseForDraw(v.components, p.bac_water_ml, p.draw_units)
-        const capacity = (v.vials_on_hand || 1) * dosesPerVial(p.bac_water_ml, p.draw_units)
+        const draw = currentDraw(p)
+        const breakdown = doseForDraw(v.components, p.bac_water_ml, draw)
+        const capacity = (v.vials_on_hand || 1) * dosesPerVial(p.bac_water_ml, draw)
+        const cyc = cycleLabel(p)
+        const titrating = (p.phases || []).length > 0
         const used = logs.filter((l) => l.vial_id === v.id && l.status !== 'skipped').length
         const left = Math.max(0, Math.floor(capacity - used))
         const low = left <= (v.low_stock_doses || 5)
@@ -94,7 +97,9 @@ export default function Protocols({ vials, onLog }) {
             <div className="vc-top">
               <div>
                 <div className="title sm">{v.name}</div>
-                <div className="muted sm">{frequencyLabel(p)} · {p.draw_units} u</div>
+                <div className="muted sm">
+                  {frequencyLabel(p)} · {draw} u{titrating && ' · titrating'}{cyc && ` · ${cyc}`}
+                </div>
               </div>
               <button className="icon-btn" aria-label="End protocol" onClick={() => end(p.id)}>
                 <i className="ti ti-x" aria-hidden="true" />
@@ -130,7 +135,7 @@ export default function Protocols({ vials, onLog }) {
                   vial_id: v.id,
                   vial_name: v.name,
                   protocol_id: p.id,
-                  draw_units: p.draw_units,
+                  draw_units: draw,
                   bac_water_ml: p.bac_water_ml,
                   breakdown: breakdown.map((b) => ({ name: b.name, mcg: round(b.mcg, 0) })),
                 })

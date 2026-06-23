@@ -32,6 +32,41 @@ export function isDueToday(p, now = new Date()) {
   return activeDays(p).includes(now.getDay())
 }
 
+// Whole weeks elapsed since the protocol's start date.
+export function weeksSinceStart(p, date = new Date()) {
+  if (!p.start_date) return 0
+  const start = new Date(p.start_date + 'T00:00:00')
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  return Math.max(0, Math.floor((d - start) / (7 * 86400000)))
+}
+
+// Is this an "on" week (vs a cycle rest week)?
+export function isOnWeek(p, date = new Date()) {
+  const on = p.cycle_weeks_on || 0
+  const off = p.cycle_weeks_off || 0
+  if (on <= 0 || off <= 0) return true
+  return weeksSinceStart(p, date) % (on + off) < on
+}
+
+// The effective draw for the current titration phase (or flat draw if none).
+export function currentDraw(p, date = new Date()) {
+  const phases = p.phases || []
+  if (!phases.length) return p.draw_units
+  const wk = weeksSinceStart(p, date)
+  let acc = 0
+  for (const ph of phases) {
+    acc += ph.weeks || 0
+    if (wk < acc) return ph.draw_units
+  }
+  return phases[phases.length - 1].draw_units // past last phase: hold last dose
+}
+
+export function cycleLabel(p) {
+  if (!(p.cycle_weeks_on > 0 && p.cycle_weeks_off > 0)) return null
+  return `${p.cycle_weeks_on}w on / ${p.cycle_weeks_off}w off`
+}
+
 // Was this protocol scheduled on a given calendar date?
 export function isDueOn(p, date) {
   if (p.frequency === 'as_needed') return false
@@ -41,7 +76,7 @@ export function isDueOn(p, date) {
     d.setHours(0, 0, 0, 0)
     if (d < start) return false
   }
-  return activeDays(p).includes(date.getDay())
+  return activeDays(p).includes(date.getDay()) && isOnWeek(p, date)
 }
 
 // Adherence % over the last `days`: taken / scheduled occurrences.

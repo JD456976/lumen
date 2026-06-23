@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listProtocols, listLogs } from '../lib/db'
 import { doseForDraw, dosesPerVial, fmtAmount, round } from '../lib/calc'
-import { isDueToday, nextDue, fmtNext } from '../lib/schedule'
+import { isDueToday, nextDue, fmtNext, currentDraw } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 
 function timeToday(t) {
@@ -92,7 +92,8 @@ export default function Today({ onLog, refreshKey }) {
             {remaining.length ? `${remaining.length} DOSE${remaining.length > 1 ? 'S' : ''} DUE TODAY` : 'ALL DONE TODAY 🎉'}
           </div>
           {due.map(({ p, t, logged }) => {
-            const breakdown = doseForDraw(p.vial.components, p.bac_water_ml, p.draw_units)
+            const draw = currentDraw(p)
+            const breakdown = doseForDraw(p.vial.components, p.bac_water_ml, draw)
             return (
               <div className={`today-card ${logged ? 'done' : ''}`} key={p.id}>
                 <div className="tc-time">{t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
@@ -116,7 +117,7 @@ export default function Today({ onLog, refreshKey }) {
                         vial_id: p.vial.id,
                         vial_name: p.vial.name,
                         protocol_id: p.id,
-                        draw_units: p.draw_units,
+                        draw_units: draw,
                         bac_water_ml: p.bac_water_ml,
                         breakdown: breakdown.map((b) => ({ name: b.name, mcg: round(b.mcg, 0) })),
                       })
