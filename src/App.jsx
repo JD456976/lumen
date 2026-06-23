@@ -54,6 +54,15 @@ export default function App() {
   if (session === undefined) return <div className="app boot">Loading…</div>
   if (!session) return <div className="app"><Auth /></div>
 
+  async function quickLog(entry) {
+    try {
+      await addLog(entry)
+      setLogRefresh((n) => n + 1)
+    } catch (e) {
+      alert('Could not log: ' + (e.message || e))
+    }
+  }
+
   async function confirmLog(entry) {
     try {
       await addLog(entry)
@@ -77,7 +86,7 @@ export default function App() {
 
       <main className="surface">
         <div className="view" key={tab}>
-          {tab === 'today' && <Today onLog={setLogDraft} refreshKey={logRefresh} />}
+          {tab === 'today' && <Today onLog={setLogDraft} onQuickLog={quickLog} refreshKey={logRefresh} />}
           {tab === 'calc' && (
             <Calculator vials={vials} onActiveVial={setActiveVial} onLog={setLogDraft} />
           )}

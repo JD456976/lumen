@@ -105,6 +105,33 @@ export async function endProtocol(id) {
   if (error) throw error
 }
 
+// ---- supplements ----
+export async function listSupplements() {
+  const { data, error } = await supabase
+    .from('supplements')
+    .select('*')
+    .eq('active', true)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function addSupplement(s) {
+  const { data: u } = await supabase.auth.getUser()
+  const { data, error } = await supabase
+    .from('supplements')
+    .insert({ user_id: u.user.id, ...s })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function endSupplement(id) {
+  const { error } = await supabase.from('supplements').update({ active: false }).eq('id', id)
+  if (error) throw error
+}
+
 // Count of doses logged per vial_id — used for supply remaining.
 export async function dosesLoggedByVial() {
   const { data, error } = await supabase.from('dose_logs').select('vial_id')

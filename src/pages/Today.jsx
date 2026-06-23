@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { listProtocols, listLogs } from '../lib/db'
+import { listProtocols, listLogs, listSupplements } from '../lib/db'
 import { doseForDraw, dosesPerVial, fmtAmount, round } from '../lib/calc'
 import { isDueToday, nextDue, fmtNext, currentDraw } from '../lib/schedule'
 import { colorFor } from '../lib/library'
@@ -11,18 +11,20 @@ function timeToday(t) {
   return d
 }
 
-export default function Today({ onLog, refreshKey }) {
+export default function Today({ onLog, onQuickLog, refreshKey }) {
   const [protocols, setProtocols] = useState([])
   const [logs, setLogs] = useState([])
+  const [supplements, setSupplements] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let on = true
-    Promise.all([listProtocols(), listLogs()])
-      .then(([p, l]) => {
+    Promise.all([listProtocols(), listLogs(), listSupplements().catch(() => [])])
+      .then(([p, l, s]) => {
         if (!on) return
         setProtocols(p)
         setLogs(l)
+        setSupplements(s)
       })
       .catch(() => on && setProtocols([]))
       .finally(() => on && setLoading(false))
@@ -56,13 +58,25 @@ export default function Today({ onLog, refreshKey }) {
     })
     .filter((x) => x.left <= x.thresh)
 
+  const suppDue = supplements
+    .filter((s) => isDueToday(s))
+    .map((s) => {
+      const t = timeToday(s.time_of_day)
+      const logged = logs.some(
+        (l) => l.supplement_id === s.id && new Date(l.taken_at).toDateString() === todayStr,
+      )
+      return { s, t, logged }
+    })
+    .sort((a, b) => a.t - b.t)
+
   const upNext = protocols
     .filter((p) => p.vial)
     .map((p) => ({ p, d: nextDue(p) }))
     .filter((x) => x.d)
     .sort((a, b) => a.d - b.d)[0]
 
-  const remaining = due.filter((d) => !d.logged)
+  const remaining = [...due, ...suppDue].filter((x) => !x.logged)
+  const hasToday = due.length > 0 || suppDue.length > 0
 
   return (
     <div className="page pad">
@@ -86,10 +100,10 @@ export default function Today({ onLog, refreshKey }) {
         </div>
       )}
 
-      {due.length > 0 && (
+      {hasToday && (
         <>
           <div className="muted xs section-h">
-            {remaining.length ? `${remaining.length} DOSE${remaining.length > 1 ? 'S' : ''} DUE TODAY` : 'ALL DONE TODAY 🎉'}
+            {remaining.length ? `${remaining.length} DUE TODAY` : 'ALL DONE TODAY 🎉'}
           </div>
           {due.map(({ p, t, logged }) => {
             const draw = currentDraw(p)
@@ -129,10 +143,27 @@ export default function Today({ onLog, refreshKey }) {
               </div>
             )
           })}
+
+          {suppDue.map(({ s, t, logged }) => (
+            <div className={`today-card ${logged ? 'done' : ''}`} key={s.id}>
+              <div className="tc-time">{t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
+              <div className="tc-body">
+                <div className="title sm">{s.name}</div>
+                <div className="muted sm">{s.dose || 'supplement'}</div>
+              </div>
+              {logged ? (
+                <span className="tc-done"><i className="ti ti-check" aria-hidden="true" /></span>
+              ) : (
+                <button className="tc-log" onClick={() => onQuickLog({ supplement_id: s.id, vial_name: s.name, status: 'taken' })}>
+                  Log
+                </button>
+              )}
+            </div>
+          ))}
         </>
       )}
 
-      {due.length === 0 && upNext && (
+      {!hasToday && upNext && (
         <div className="upnext">
           <div className="muted xs section-h">UP NEXT</div>
           <div className="title sm">{upNext.p.vial.name}</div>
