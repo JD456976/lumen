@@ -30,6 +30,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/evidence"
+  to = "/.netlify/functions/evidence"
+  status = 200
+
+[[redirects]]
   from = "/api/ai"
   to = "/.netlify/functions/ai"
   status = 200

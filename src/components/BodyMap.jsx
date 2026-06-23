@@ -1,7 +1,8 @@
-// Front-body injection-site map with rotation coloring.
+// 20-zone injection-site map (front + back) with rotation coloring.
 // safe (green) · used recently (amber) · used today (red).
+import { useState } from 'react'
 
-export const SITES = [
+export const SITES_FRONT = [
   { id: 'L Delt', cx: 64, cy: 96 },
   { id: 'R Delt', cx: 156, cy: 96 },
   { id: 'L Arm', cx: 50, cy: 132 },
@@ -14,6 +15,17 @@ export const SITES = [
   { id: 'Abd LR', cx: 127, cy: 194 },
   { id: 'L Thigh', cx: 92, cy: 280 },
   { id: 'R Thigh', cx: 128, cy: 280 },
+]
+
+export const SITES_BACK = [
+  { id: 'L Tricep', cx: 50, cy: 132 },
+  { id: 'R Tricep', cx: 170, cy: 132 },
+  { id: 'Low Back L', cx: 96, cy: 190 },
+  { id: 'Low Back R', cx: 124, cy: 190 },
+  { id: 'L Glute', cx: 94, cy: 225 },
+  { id: 'R Glute', cx: 126, cy: 225 },
+  { id: 'L Ham', cx: 92, cy: 285 },
+  { id: 'R Ham', cx: 128, cy: 285 },
 ]
 
 function statusFor(id, logs, now) {
@@ -35,11 +47,18 @@ const FILL = { safe: '#1f3a32', recent: '#3a2f17', today: '#3a1a1a' }
 const RING = { safe: '#5dcaa5', recent: '#e0a36a', today: '#d9534f' }
 
 export default function BodyMap({ logs = [], value, onChange }) {
+  const [view, setView] = useState('front')
   const now = Date.now()
+  const sites = view === 'front' ? SITES_FRONT : SITES_BACK
+
   return (
     <div className="bodymap">
+      <div className="seg" style={{ margin: '0 0 8px' }}>
+        <button className={view === 'front' ? 'on' : ''} onClick={() => setView('front')}>Front</button>
+        <button className={view === 'back' ? 'on' : ''} onClick={() => setView('back')}>Back</button>
+      </div>
+
       <svg viewBox="0 0 220 360" width="100%" role="img" aria-label="Injection site map">
-        {/* silhouette */}
         <g fill="#16161c" stroke="#2c2c33" strokeWidth="1">
           <circle cx="110" cy="34" r="20" />
           <rect x="78" y="56" width="64" height="14" rx="7" />
@@ -49,21 +68,21 @@ export default function BodyMap({ logs = [], value, onChange }) {
           <rect x="76" y="206" width="26" height="120" rx="13" />
           <rect x="118" y="206" width="26" height="120" rx="13" />
         </g>
-        {/* zones */}
-        {SITES.map((s) => {
+        {sites.map((s) => {
           const st = statusFor(s.id, logs, now)
           const sel = value === s.id
           return (
-            <g key={s.id} onClick={() => onChange(s.id)} style={{ cursor: 'pointer' }}>
-              <circle
-                cx={s.cx}
-                cy={s.cy}
-                r={sel ? 11 : 9}
-                fill={FILL[st]}
-                stroke={sel ? '#f5c66b' : RING[st]}
-                strokeWidth={sel ? 2.5 : 1.5}
-              />
-            </g>
+            <circle
+              key={s.id}
+              cx={s.cx}
+              cy={s.cy}
+              r={sel ? 11 : 9}
+              fill={FILL[st]}
+              stroke={sel ? '#f5c66b' : RING[st]}
+              strokeWidth={sel ? 2.5 : 1.5}
+              style={{ cursor: 'pointer' }}
+              onClick={() => onChange(s.id)}
+            />
           )
         })}
       </svg>

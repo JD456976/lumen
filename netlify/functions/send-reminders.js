@@ -41,9 +41,12 @@ export default async (req) => {
 
   const { data: protocols } = await sb
     .from('protocols')
-    .select('*, vial:vials(name)')
+    .select('*, vial:vials(name, vials_on_hand, low_stock_doses)')
     .eq('active', true)
   const { data: subs } = await sb.from('push_subscriptions').select('*')
+  const { data: allLogs } = await sb.from('dose_logs').select('vial_id, status')
+  const vialUsed = {}
+  for (const l of allLogs || []) if (l.vial_id && l.status !== 'skipped') vialUsed[l.vial_id] = (vialUsed[l.vial_id] || 0) + 1
 
   const subsByUser = {}
   for (const s of subs || []) (subsByUser[s.user_id] ||= []).push(s)
@@ -85,7 +88,34 @@ export default async (req) => {
     await sb.from('protocols').update({ last_notified_at: now.toISOString() }).eq('id', p.id)
   }
 
-  return json({ ok: true, sent }, 200)
+  // Low-vial warnings, sent once/day in each user's noon window (12:00–12:14 local).
+  let lowSent = 0
+  const seenLowVial = new Set()
+  for (const p of protocols || []) {
+    if (!p.vial) continue
+    const userSubs = subsByUser[p.user_id]
+    if (!userSubs?.length) continue
+    const tz = userSubs[0].tz || 'America/New_York'
+    const { minutes } = localParts(tz, now)
+    if (minutes < 720 || minutes >= 735) continue // only 12:00–12:14
+    const perDose = p.draw_units / 100
+    const cap = (p.vial.vials_on_hand || 1) * (perDose > 0 ? p.bac_water_ml / perDose : 0)
+    const left = Math.max(0, Math.floor(cap - (vialUsed[p.vial_id] || 0)))
+    const key = `${p.user_id}:${p.vial_id}`
+    if (left > (p.vial.low_stock_doses || 5) || seenLowVial.has(key)) continue
+    seenLowVial.add(key)
+    const payload = JSON.stringify({ title: 'Low vial', body: `${p.vial.name} — ≈ ${left} doses left. Reorder soon.`, url: '/' })
+    for (const s of userSubs) {
+      try {
+        await webpush.sendNotification(s.subscription, payload)
+        lowSent++
+      } catch (e) {
+        if (e.statusCode === 404 || e.statusCode === 410) await sb.from('push_subscriptions').delete().eq('endpoint', s.endpoint)
+      }
+    }
+  }
+
+  return json({ ok: true, sent, lowSent }, 200)
 }
 
 function json(obj, status) {
