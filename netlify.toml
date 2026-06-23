@@ -25,6 +25,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/build-protocol"
+  to = "/.netlify/functions/build-protocol"
+  status = 200
+
+[[redirects]]
   from = "/api/ai"
   to = "/.netlify/functions/ai"
   status = 200
