@@ -217,6 +217,12 @@ export default function ScanWizard({ vials = [], onDone }) {
         <Fact icon="ti-rotate" label="Cycle" value={rec.cycle} />
         <Fact icon="ti-microscope" label="Source" value={rec.source} />
       </div>
+      {unitsFor(opts.find((o) => o.id === pick).mcg) > 100 && (
+        <div className="alert">
+          That dose is {unitsFor(opts.find((o) => o.id === pick).mcg)}u — more than a 100-unit syringe holds.
+          Go back and reconstitute with more water (this is often an oral/high-dose compound).
+        </div>
+      )}
       <div className="muted xs is-note">Typical ranges from research / community practice — not medical advice.</div>
       {error && <div className="alert">{error}</div>}
       <button className="primary block mt" disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save & add to inventory'}</button>

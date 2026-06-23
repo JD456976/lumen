@@ -5,6 +5,7 @@ import { isDueToday, nextDue, fmtNext, currentDraw } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
 import ScanWizard from '../components/ScanWizard'
+import VialForm from '../components/VialForm'
 
 function timeToday(t) {
   const [h, m] = (t || '08:00').split(':').map(Number)
@@ -19,6 +20,7 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
   const [supplements, setSupplements] = useState([])
   const [loading, setLoading] = useState(true)
   const [scan, setScan] = useState(false)
+  const [editVial, setEditVial] = useState(null)
 
   useEffect(() => {
     let on = true
@@ -190,6 +192,7 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
             <PeptideRow
               key={v.id}
               vial={v}
+              onEdit={() => setEditVial(v)}
               onTake={() =>
                 onLog({
                   vial_id: v.id,
@@ -215,11 +218,17 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
           <ScanWizard vials={vials} onDone={() => { setScan(false); onChanged?.() }} />
         </Sheet>
       )}
+
+      {editVial && (
+        <Sheet title={`Edit ${editVial.name}`} onClose={() => setEditVial(null)}>
+          <VialForm existing={editVial} onDone={() => { setEditVial(null); onChanged?.() }} />
+        </Sheet>
+      )}
     </div>
   )
 }
 
-function PeptideRow({ vial, onTake, onDelete }) {
+function PeptideRow({ vial, onTake, onDelete, onEdit }) {
   const [dx, setDx] = useState(0)
   const [startX, setStartX] = useState(null)
   const used = (vial._used) || 0
@@ -237,8 +246,8 @@ function PeptideRow({ vial, onTake, onDelete }) {
         onTouchMove={(e) => startX != null && setDx(Math.max(-72, Math.min(0, e.touches[0].clientX - startX)))}
         onTouchEnd={() => { setDx(dx < -36 ? -72 : 0); setStartX(null) }}
       >
-        <div className="pep-body">
-          <div className="title sm">{vial.name}</div>
+        <div className="pep-body" onClick={() => dx === 0 && onEdit()}>
+          <div className="title sm">{vial.name} <i className="ti ti-pencil pep-edit" aria-hidden="true" /></div>
           <div className={`muted sm ${low ? 'pep-low' : ''}`}>
             {left <= 0 ? 'Empty — swipe to remove' : `≈ ${left} doses left`}{vial.vials_on_hand > 1 ? ` · ${vial.vials_on_hand} vials` : ''}
           </div>

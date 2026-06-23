@@ -614,3 +614,5 @@ input:focus, textarea:focus, select:focus {
   flex: 0 0 auto; background: var(--amber); color: var(--amber-ink); border: none; border-radius: 10px;
   padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
 }
+
+.pep-edit { font-size: 12px; color: var(--muted); margin-left: 4px; vertical-align: 1px; }
