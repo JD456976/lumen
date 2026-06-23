@@ -22,7 +22,8 @@ Return ONLY a JSON object in this exact shape:
   ]
 }
 Rules:
-- Compute draw_units from the dose, vial mg, and bac_water_ml on a U-100 syringe (100 units = 1 mL). Be internally consistent.
+- All peptides are administered by SUBCUTANEOUS INJECTION on a U-100 insulin syringe. Dose for injectable use, not oral.
+- Compute draw_units from the dose, vial mg, and bac_water_ml on a U-100 syringe (100 units = 1 mL). Keep a single dose at or under 100 units (suggest more bac_water_ml if needed). Be internally consistent.
 - Use typical community dose ranges. Include titration phases when commonly used (e.g. GH secretagogues).
 - This is informational, typical-range guidance, NOT medical advice. Don't invent exotic compounds.
 - If a screenshot is given, extract the actual peptides/doses shown and structure them.`

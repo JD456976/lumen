@@ -15,6 +15,7 @@ Return ONLY a JSON object in this exact shape:
   "source": string              // e.g. "human clinical trials", "animal studies + community protocols (Reddit/forums)"
 }
 Rules:
+- The user administers ALL peptides by SUBCUTANEOUS INJECTION using a U-100 insulin syringe. Give doses for subcutaneous injectable use in micrograms — NOT oral/capsule dosing. If a compound is normally oral, give the typical injectable-research equivalent and note it in "source".
 - All three dose values are PER-DOSE micrograms (numbers only, no units in the value).
 - Base values on human clinical data where it exists; otherwise common community practice (forums/Reddit) and animal studies — state which in "source".
 - Be realistic and consistent (low <= normal <= high).
