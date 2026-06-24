@@ -25,6 +25,7 @@ export async function addVial(v) {
       default_draw_units: v.default_draw_units ?? null,
       vials_on_hand: v.vials_on_hand ?? 1,
       dose_rec: v.dose_rec ?? null,
+      doses_remaining: v.doses_remaining ?? null,
     })
     .select()
     .single()
@@ -41,6 +42,14 @@ export async function updateVial(id, patch) {
     .single()
   if (error) throw error
   return data
+}
+
+// Tick a vial's directly-set doses-remaining counter down by one (if set).
+export async function decrementDoses(vialId) {
+  const { data } = await supabase.from('vials').select('doses_remaining').eq('id', vialId).single()
+  if (data && data.doses_remaining != null) {
+    await supabase.from('vials').update({ doses_remaining: Math.max(0, data.doses_remaining - 1) }).eq('id', vialId)
+  }
 }
 
 export async function archiveVial(id) {

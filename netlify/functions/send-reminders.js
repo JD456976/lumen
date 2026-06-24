@@ -41,7 +41,7 @@ export default async (req) => {
 
   const { data: protocols } = await sb
     .from('protocols')
-    .select('*, vial:vials(name, vials_on_hand, low_stock_doses)')
+    .select('*, vial:vials(name, vials_on_hand, low_stock_doses, doses_remaining)')
     .eq('active', true)
   const { data: subs } = await sb.from('push_subscriptions').select('*')
   const { data: allLogs } = await sb.from('dose_logs').select('vial_id, status')
@@ -98,9 +98,14 @@ export default async (req) => {
     const tz = userSubs[0].tz || 'America/New_York'
     const { minutes } = localParts(tz, now)
     if (minutes < 720 || minutes >= 735) continue // only 12:00–12:14
-    const perDose = p.draw_units / 100
-    const cap = (p.vial.vials_on_hand || 1) * (perDose > 0 ? p.bac_water_ml / perDose : 0)
-    const left = Math.max(0, Math.floor(cap - (vialUsed[p.vial_id] || 0)))
+    let left
+    if (p.vial.doses_remaining != null) {
+      left = Math.max(0, p.vial.doses_remaining)
+    } else {
+      const perDose = p.draw_units / 100
+      const cap = (p.vial.vials_on_hand || 1) * (perDose > 0 ? p.bac_water_ml / perDose : 0)
+      left = Math.max(0, Math.floor(cap - (vialUsed[p.vial_id] || 0)))
+    }
     const key = `${p.user_id}:${p.vial_id}`
     if (left > (p.vial.low_stock_doses || 5) || seenLowVial.has(key)) continue
     seenLowVial.add(key)

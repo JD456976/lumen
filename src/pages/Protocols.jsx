@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listProtocols, endProtocol, listLogs } from '../lib/db'
-import { doseForDraw, dosesPerVial, fmtAmount, round } from '../lib/calc'
+import { doseForDraw, effectiveDosesLeft, fmtAmount, round } from '../lib/calc'
 import { nextDue, fmtNext, frequencyLabel, adherence, currentDraw, cycleLabel } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
@@ -84,11 +84,10 @@ export default function Protocols({ vials, onLog }) {
         if (!v) return null
         const draw = currentDraw(p)
         const breakdown = doseForDraw(v.components, p.bac_water_ml, draw)
-        const capacity = (v.vials_on_hand || 1) * dosesPerVial(p.bac_water_ml, draw)
         const cyc = cycleLabel(p)
         const titrating = (p.phases || []).length > 0
         const used = logs.filter((l) => l.vial_id === v.id && l.status !== 'skipped').length
-        const left = Math.max(0, Math.floor(capacity - used))
+        const left = effectiveDosesLeft(v, used)
         const low = left <= (v.low_stock_doses || 5)
         const due = nextDue(p)
         const adh = adherence(p, logs)

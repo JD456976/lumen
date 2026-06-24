@@ -10,6 +10,7 @@ export default function VialForm({ existing, prefill, onDone }) {
   const [bac, setBac] = useState(seed.default_bac_water_ml ?? 2)
   const [draw, setDraw] = useState(seed.default_draw_units ?? 20)
   const [onHand, setOnHand] = useState(seed.vials_on_hand ?? 1)
+  const [dosesLeft, setDosesLeft] = useState(seed.doses_remaining ?? '')
   const [components, setComponents] = useState(
     (seed.components && seed.components.length ? seed.components : [{ ...blank }]).map((c) => ({
       name: c.name || '',
@@ -47,6 +48,7 @@ export default function VialForm({ existing, prefill, onDone }) {
         default_bac_water_ml: Number(bac),
         default_draw_units: Number(draw),
         vials_on_hand: onHand === '' ? 1 : Number(onHand),
+        doses_remaining: dosesLeft === '' ? null : Math.max(0, Math.round(Number(dosesLeft))),
       }
       const saved = existing?.id
         ? await updateVial(existing.id, payload)
@@ -89,8 +91,17 @@ export default function VialForm({ existing, prefill, onDone }) {
         </div>
       </div>
 
-      <label className="lbl">Vials on hand</label>
-      <input className="in" type="number" inputMode="decimal" value={onHand} onChange={(e) => setOnHand(e.target.value)} />
+      <div className="two">
+        <div>
+          <label className="lbl">Vials on hand</label>
+          <input className="in" type="number" inputMode="decimal" value={onHand} onChange={(e) => setOnHand(e.target.value)} />
+        </div>
+        <div>
+          <label className="lbl">Doses left</label>
+          <input className="in" type="number" inputMode="numeric" value={dosesLeft} onChange={(e) => setDosesLeft(e.target.value)} placeholder="auto" />
+        </div>
+      </div>
+      <div className="muted xs">Set "Doses left" to the real number you have — it counts down as you log. Leave blank to auto-estimate.</div>
 
       {error && <div className="alert">{error}</div>}
       <button className="primary block mt" disabled={busy} onClick={save}>

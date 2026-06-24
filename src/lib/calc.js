@@ -57,6 +57,14 @@ export function dosesPerVial(bacWaterMl, drawUnits, unitsPerMl = UNITS_PER_ML) {
   return bacWaterMl / perDose
 }
 
+// Doses left for a vial: the user-set count if present, else estimated from
+// vials-on-hand × doses-per-vial minus what's been logged.
+export function effectiveDosesLeft(vial, usedCount = 0) {
+  if (vial.doses_remaining != null) return Math.max(0, vial.doses_remaining)
+  const cap = (vial.vials_on_hand || 1) * dosesPerVial(vial.default_bac_water_ml || 2, vial.default_draw_units || 10)
+  return Math.max(0, Math.floor(cap - usedCount))
+}
+
 // Pretty mcg/mg formatting — mg once we cross 1000 mcg.
 export function fmtAmount(mcg) {
   if (mcg >= 1000) {

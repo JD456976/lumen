@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { SEED_VIALS } from './lib/library'
-import { listVials, addLog } from './lib/db'
+import { listVials, addLog, decrementDoses } from './lib/db'
 import Auth from './Auth'
 import Today from './pages/Today'
 import Calculator from './pages/Calculator'
@@ -57,6 +57,7 @@ export default function App() {
   async function quickLog(entry) {
     try {
       await addLog(entry)
+      if (entry.vial_id && entry.status !== 'skipped') await decrementDoses(entry.vial_id)
       setLogRefresh((n) => n + 1)
     } catch (e) {
       alert('Could not log: ' + (e.message || e))
@@ -66,6 +67,7 @@ export default function App() {
   async function confirmLog(entry) {
     try {
       await addLog(entry)
+      if (entry.vial_id && entry.status !== 'skipped') await decrementDoses(entry.vial_id)
       setLogDraft(null)
       setLogRefresh((n) => n + 1)
       setTab('log')

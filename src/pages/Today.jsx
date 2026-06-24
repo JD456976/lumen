@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listProtocols, listLogs, listSupplements, archiveVial } from '../lib/db'
-import { doseForDraw, dosesPerVial, fmtAmount, round } from '../lib/calc'
+import { doseForDraw, dosesPerVial, effectiveDosesLeft, fmtAmount, round } from '../lib/calc'
 import { isDueToday, nextDue, fmtNext, currentDraw } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
@@ -61,9 +61,8 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
   const lowStock = protocols
     .filter((p) => p.vial)
     .map((p) => {
-      const cap = (p.vial.vials_on_hand || 1) * dosesPerVial(p.bac_water_ml, p.draw_units)
       const used = logs.filter((l) => l.vial_id === p.vial.id && l.status !== 'skipped').length
-      return { name: p.vial.name, left: Math.max(0, Math.floor(cap - used)), thresh: p.vial.low_stock_doses || 5 }
+      return { name: p.vial.name, left: effectiveDosesLeft(p.vial, used), thresh: p.vial.low_stock_doses || 5 }
     })
     .filter((x) => x.left <= x.thresh)
 
@@ -268,9 +267,7 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
 function PeptideRow({ vial, onTake, onDelete, onEdit }) {
   const [dx, setDx] = useState(0)
   const [startX, setStartX] = useState(null)
-  const used = (vial._used) || 0
-  const cap = (vial.vials_on_hand || 1) * dosesPerVial(vial.default_bac_water_ml || 2, vial.default_draw_units || 10)
-  const left = Math.max(0, Math.floor(cap - used))
+  const left = effectiveDosesLeft(vial, vial._used || 0)
   const low = left <= (vial.low_stock_doses || 5)
 
   return (

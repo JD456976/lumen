@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { addVial, updateVial, addProtocol } from '../lib/db'
-import { concentration, drawForTarget, round } from '../lib/calc'
+import { concentration, drawForTarget, dosesPerVial, round } from '../lib/calc'
 import { colorFor } from '../lib/library'
 import { fileToCompressedBase64 } from '../lib/image'
 
@@ -82,10 +82,18 @@ export default function ScanWizard({ vials = [], onDone }) {
     try {
       const mcg = rec[`${pick}_mcg`]
       const draw = Math.round(unitsFor(mcg)) || 10
+      const perVial = Math.max(1, Math.round(dosesPerVial(bac, draw)))
       const existing = vials.find((v) => v.persisted && v.name.toLowerCase() === parsed.name.toLowerCase())
       let vialId
       if (existing) {
-        await updateVial(existing.id, { vials_on_hand: (existing.vials_on_hand || 1) + 1, default_bac_water_ml: bac, default_draw_units: draw, dose_rec: rec, components: parsed.components })
+        await updateVial(existing.id, {
+          vials_on_hand: (existing.vials_on_hand || 1) + 1,
+          default_bac_water_ml: bac,
+          default_draw_units: draw,
+          dose_rec: rec,
+          components: parsed.components,
+          doses_remaining: (existing.doses_remaining ?? 0) + perVial,
+        })
         vialId = existing.id
       } else {
         const v = await addVial({
@@ -96,6 +104,7 @@ export default function ScanWizard({ vials = [], onDone }) {
           default_draw_units: draw,
           vials_on_hand: 1,
           dose_rec: rec,
+          doses_remaining: perVial,
         })
         vialId = v.id
       }
