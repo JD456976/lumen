@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { addVial, addProtocol } from '../lib/db'
+import { fileToCompressedBase64 } from '../lib/image'
 import { frequencyLabel } from '../lib/schedule'
 import { colorFor } from '../lib/library'
 
@@ -30,12 +31,15 @@ export default function ProtocolBuilder({ onDone }) {
     }
   }
 
-  function onFile(e) {
+  async function onFile(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => build({ image: String(reader.result).split(',')[1], media_type: file.type })
-    reader.readAsDataURL(file)
+    try {
+      const { base64, media_type } = await fileToCompressedBase64(file)
+      build({ image: base64, media_type })
+    } catch (err) {
+      setError(String(err.message || err))
+    }
   }
 
   async function addAll() {

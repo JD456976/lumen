@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { addVial } from '../lib/db'
+import { fileToCompressedBase64 } from '../lib/image'
 
 export default function AddVial({ onSaved }) {
   const [text, setText] = useState('')
@@ -27,16 +28,15 @@ export default function AddVial({ onSaved }) {
     }
   }
 
-  function onFile(e) {
+  async function onFile(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      const dataUrl = String(reader.result)
-      const base64 = dataUrl.split(',')[1]
-      parse({ image: base64, media_type: file.type })
+    try {
+      const { base64, media_type } = await fileToCompressedBase64(file)
+      parse({ image: base64, media_type })
+    } catch (err) {
+      setError(String(err.message || err))
     }
-    reader.readAsDataURL(file)
   }
 
   async function save() {

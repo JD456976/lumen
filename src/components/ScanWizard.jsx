@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { addVial, updateVial, addProtocol } from '../lib/db'
 import { concentration, drawForTarget, round } from '../lib/calc'
 import { colorFor } from '../lib/library'
+import { fileToCompressedBase64 } from '../lib/image'
 
 const FREQS = [
   { id: 'daily', label: 'Daily' },
@@ -31,32 +32,28 @@ export default function ScanWizard({ vials = [], onDone }) {
     return round(drawForTarget(parsed.components, bac, primary.name, mcg, 100), 1)
   }
 
-  function onFile(e) {
+  async function onFile(e) {
     const file = e.target.files?.[0]
     if (!file) return
     setBusy(true)
     setError(null)
-    const reader = new FileReader()
-    reader.onload = async () => {
-      try {
-        const base64 = String(reader.result).split(',')[1]
-        const res = await fetch('/api/parse', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ image: base64, media_type: file.type }),
-        })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'Could not read the vial')
-        const v = data.vial
-        setParsed({ name: v.name, components: (v.components || []).map((c) => ({ name: c.name, mg: Number(c.mg) })), vial_ml: v.vial_ml ?? null })
-        setStep('reconstitute')
-      } catch (err) {
-        setError(String(err.message || err))
-      } finally {
-        setBusy(false)
-      }
+    try {
+      const { base64, media_type } = await fileToCompressedBase64(file)
+      const res = await fetch('/api/parse', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ image: base64, media_type }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Could not read the vial')
+      const v = data.vial
+      setParsed({ name: v.name, components: (v.components || []).map((c) => ({ name: c.name, mg: Number(c.mg) })), vial_ml: v.vial_ml ?? null })
+      setStep('reconstitute')
+    } catch (err) {
+      setError(String(err.message || err))
+    } finally {
+      setBusy(false)
     }
-    reader.readAsDataURL(file)
   }
 
   async function fetchRec() {
