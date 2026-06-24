@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { marked } from 'marked'
 import { colorFor } from '../lib/library'
 
@@ -15,32 +15,35 @@ function vialLine(v) {
   return `${v.name}: ${comps}${bac ? `, reconstituted with ${bac} mL` : ' (not yet reconstituted)'}`
 }
 
-export default function Research({ vial, vials = [] }) {
-  const components = vial?.components ?? []
-  const [active, setActive] = useState(components[0]?.name || '')
+export default function Research({ vials = [] }) {
+  const onHand = vials.filter((v) => v.persisted)
+  // Distinct peptides across the whole inventory.
+  const peptides = [...new Set(onHand.flatMap((v) => (v.components || []).map((c) => c.name)))]
+
+  const [active, setActive] = useState('') // nothing selected → nothing generated
   const [briefs, setBriefs] = useState({}) // name -> { loading, data, error }
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
 
-  useEffect(() => {
-    if (components[0] && !active) setActive(components[0].name)
-  }, [vial])
-
-  useEffect(() => {
-    if (!active || briefs[active]) return
-    setBriefs((b) => ({ ...b, [active]: { loading: true } }))
+  // Only fetch a briefing when the user taps a peptide.
+  function selectPeptide(name) {
+    if (active === name) {
+      setActive('')
+      return
+    }
+    setActive(name)
+    if (briefs[name]) return
+    setBriefs((b) => ({ ...b, [name]: { loading: true } }))
     fetch('/api/brief', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ peptide: active }),
+      body: JSON.stringify({ peptide: name }),
     })
       .then((r) => r.json())
-      .then((d) =>
-        setBriefs((b) => ({ ...b, [active]: d.brief ? { data: d.brief } : { error: d.error } })),
-      )
-      .catch((e) => setBriefs((b) => ({ ...b, [active]: { error: String(e) } })))
-  }, [active])
+      .then((d) => setBriefs((b) => ({ ...b, [name]: d.brief ? { data: d.brief } : { error: d.error } })))
+      .catch((e) => setBriefs((b) => ({ ...b, [name]: { error: String(e) } })))
+  }
 
   async function send(q) {
     const question = (q ?? input).trim()
@@ -50,15 +53,11 @@ export default function Research({ vial, vials = [] }) {
     setInput('')
     setBusy(true)
     try {
-      const onHand = vials.filter((v) => v.persisted)
-      const inventory = onHand.length
+      const context = onHand.length
         ? `The user injects subcutaneously on a U-100 insulin syringe (100 units = 1 mL). Their vials on hand:\n` +
           onHand.map((v) => `- ${vialLine(v)}`).join('\n') +
-          (vial ? `\nCurrently viewing: ${vial.name}${active ? ` (focused on ${active})` : ''}.` : '')
-        : vial
-          ? `The user's vial "${vial.name}" contains ${(vial.components || []).map((c) => `${c.name} ${c.mg}mg`).join(', ')}.`
-          : null
-      const context = inventory
+          (active ? `\nCurrently focused on ${active}.` : '')
+        : null
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -73,29 +72,27 @@ export default function Research({ vial, vials = [] }) {
     }
   }
 
-  if (!vial) {
-    return <div className="empty"><i className="ti ti-sparkles" aria-hidden="true" /><p>Pick a vial first.</p></div>
-  }
-
   const b = briefs[active]
 
   return (
     <div className="page pad">
       <div className="title">Research</div>
-      <div className="muted sm mb">{vial.name} · information, not medical advice</div>
+      <div className="muted sm mb">Tap a peptide for a briefing, or ask anything below.</div>
 
-      {components.length > 1 && (
-        <div className="vial-tabs mb">
-          {components.map((c) => (
+      {peptides.length > 0 ? (
+        <div className="pep-pills mb">
+          {peptides.map((name) => (
             <button
-              key={c.name}
-              className={`vial-tab ${c.name === active ? 'active' : ''}`}
-              onClick={() => setActive(c.name)}
+              key={name}
+              className={`mini ${name === active ? 'on' : ''}`}
+              onClick={() => selectPeptide(name)}
             >
-              {c.name}
+              <span className="dot" style={{ background: colorFor(name) }} /> {name}
             </button>
           ))}
         </div>
+      ) : (
+        <div className="muted sm mb">Add peptides on the Today screen and they'll appear here.</div>
       )}
 
       {b?.loading && <div className="muted sm">Preparing briefing for {active}…</div>}
@@ -135,7 +132,7 @@ export default function Research({ vial, vials = [] }) {
         </div>
       )}
 
-      <div className="muted xs mt mb">ASK A FOLLOW-UP</div>
+      <div className="muted xs mt mb">ASK ANYTHING</div>
       <div className="chat">
         {messages.map((m, i) =>
           m.role === 'assistant' ? (
@@ -151,7 +148,7 @@ export default function Research({ vial, vials = [] }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && send()}
-          placeholder={`Ask about ${active}…`}
+          placeholder={active ? `Ask about ${active}…` : 'Ask about doses, timing, stacks…'}
         />
         <button className="primary" disabled={busy} onClick={() => send()}>
           <i className="ti ti-arrow-up" aria-hidden="true" />

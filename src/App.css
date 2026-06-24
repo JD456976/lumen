@@ -635,3 +635,8 @@ input:focus, textarea:focus, select:focus {
 .conv-unit { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); pointer-events: none; }
 .conv-eq { color: var(--amber); font-size: 18px; flex: 0 0 auto; }
 .conv-factor { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+
+/* research peptide pills */
+.pep-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pep-pills .mini { display: inline-flex; align-items: center; gap: 6px; }
+.pep-pills .mini .dot { width: 7px; height: 7px; border-radius: 50%; }
