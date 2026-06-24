@@ -100,7 +100,7 @@ export default function App() {
           )}
           {tab === 'stack' && <Stack vials={vials} onLog={setLogDraft} onChanged={refreshVials} />}
           {tab === 'log' && <LogPage refreshKey={logRefresh} />}
-          {tab === 'research' && <Research vial={activeVial || vials[0]} />}
+          {tab === 'research' && <Research vial={activeVial || vials[0]} vials={vials} />}
         </div>
       </main>
 

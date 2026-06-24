@@ -4,7 +4,18 @@ import { colorFor } from '../lib/library'
 
 marked.setOptions({ breaks: true })
 
-export default function Research({ vial }) {
+function vialLine(v) {
+  const bac = v.default_bac_water_ml
+  const comps = (v.components || [])
+    .map((c) => {
+      const conc = bac ? Math.round((c.mg / bac) * 100) / 100 : null
+      return `${c.name} ${c.mg}mg${conc != null ? ` (${conc} mg/mL)` : ''}`
+    })
+    .join(' + ')
+  return `${v.name}: ${comps}${bac ? `, reconstituted with ${bac} mL` : ' (not yet reconstituted)'}`
+}
+
+export default function Research({ vial, vials = [] }) {
   const components = vial?.components ?? []
   const [active, setActive] = useState(components[0]?.name || '')
   const [briefs, setBriefs] = useState({}) // name -> { loading, data, error }
@@ -39,15 +50,15 @@ export default function Research({ vial }) {
     setInput('')
     setBusy(true)
     try {
-      const compList = (vial?.components || []).map((c) => `${c.name} ${c.mg}mg`).join(', ')
-      const context =
-        vial && components.length > 1
-          ? `The user's vial "${vial.name}" is a blend containing: ${compList}. ` +
-            `If they mention "${vial.name}" or "the blend", treat it as this combination. ` +
-            `They are currently focused on ${active}.`
-          : vial
-            ? `The user's vial "${vial.name}" contains ${compList || active}.`
-            : null
+      const onHand = vials.filter((v) => v.persisted)
+      const inventory = onHand.length
+        ? `The user injects subcutaneously on a U-100 insulin syringe (100 units = 1 mL). Their vials on hand:\n` +
+          onHand.map((v) => `- ${vialLine(v)}`).join('\n') +
+          (vial ? `\nCurrently viewing: ${vial.name}${active ? ` (focused on ${active})` : ''}.` : '')
+        : vial
+          ? `The user's vial "${vial.name}" contains ${(vial.components || []).map((c) => `${c.name} ${c.mg}mg`).join(', ')}.`
+          : null
+      const context = inventory
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
