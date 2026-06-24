@@ -6,6 +6,7 @@ import { colorFor } from '../lib/library'
 import Sheet from '../components/Sheet'
 import ScanWizard from '../components/ScanWizard'
 import VialForm from '../components/VialForm'
+import TakeSheet from '../components/TakeSheet'
 
 function timeToday(t) {
   const [h, m] = (t || '08:00').split(':').map(Number)
@@ -21,6 +22,7 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
   const [loading, setLoading] = useState(true)
   const [scan, setScan] = useState(false)
   const [editVial, setEditVial] = useState(null)
+  const [takeVial, setTakeVial] = useState(null)
 
   useEffect(() => {
     let on = true
@@ -193,15 +195,7 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
               key={v.id}
               vial={v}
               onEdit={() => setEditVial(v)}
-              onTake={() =>
-                onLog({
-                  vial_id: v.id,
-                  vial_name: v.name,
-                  draw_units: v.default_draw_units || 10,
-                  bac_water_ml: v.default_bac_water_ml || 2,
-                  breakdown: doseForDraw(v.components, v.default_bac_water_ml || 2, v.default_draw_units || 10).map((b) => ({ name: b.name, mcg: round(b.mcg, 0) })),
-                })
-              }
+              onTake={() => setTakeVial(v)}
               onDelete={async () => {
                 if (confirm(`Remove ${v.name} from inventory?`)) {
                   await archiveVial(v.id)
@@ -222,6 +216,16 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
       {editVial && (
         <Sheet title={`Edit ${editVial.name}`} onClose={() => setEditVial(null)}>
           <VialForm existing={editVial} onDone={() => { setEditVial(null); onChanged?.() }} />
+        </Sheet>
+      )}
+
+      {takeVial && (
+        <Sheet title={`Take · ${takeVial.name}`} onClose={() => setTakeVial(null)}>
+          <TakeSheet
+            vial={takeVial}
+            onConfirm={async (entry) => { await onQuickLog(entry); setTakeVial(null) }}
+            onClose={() => setTakeVial(null)}
+          />
         </Sheet>
       )}
     </div>
@@ -246,8 +250,13 @@ function PeptideRow({ vial, onTake, onDelete, onEdit }) {
         onTouchMove={(e) => startX != null && setDx(Math.max(-72, Math.min(0, e.touches[0].clientX - startX)))}
         onTouchEnd={() => { setDx(dx < -36 ? -72 : 0); setStartX(null) }}
       >
-        <div className="pep-body" onClick={() => dx === 0 && onEdit()}>
-          <div className="title sm">{vial.name} <i className="ti ti-pencil pep-edit" aria-hidden="true" /></div>
+        <div className="pep-body" onClick={() => dx === 0 && onTake()}>
+          <div className="title sm">
+            {vial.name}
+            <button className="pep-edit-btn" aria-label="Edit" onClick={(e) => { e.stopPropagation(); onEdit() }}>
+              <i className="ti ti-pencil" aria-hidden="true" />
+            </button>
+          </div>
           <div className={`muted sm ${low ? 'pep-low' : ''}`}>
             {left <= 0 ? 'Empty — swipe to remove' : `≈ ${left} doses left`}{vial.vials_on_hand > 1 ? ` · ${vial.vials_on_hand} vials` : ''}
           </div>

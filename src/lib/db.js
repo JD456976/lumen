@@ -23,6 +23,8 @@ export async function addVial(v) {
       components: v.components ?? [],
       default_bac_water_ml: v.default_bac_water_ml ?? null,
       default_draw_units: v.default_draw_units ?? null,
+      vials_on_hand: v.vials_on_hand ?? 1,
+      dose_rec: v.dose_rec ?? null,
     })
     .select()
     .single()

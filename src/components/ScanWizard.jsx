@@ -85,7 +85,7 @@ export default function ScanWizard({ vials = [], onDone }) {
       const existing = vials.find((v) => v.persisted && v.name.toLowerCase() === parsed.name.toLowerCase())
       let vialId
       if (existing) {
-        await updateVial(existing.id, { vials_on_hand: (existing.vials_on_hand || 1) + 1, default_bac_water_ml: bac, default_draw_units: draw })
+        await updateVial(existing.id, { vials_on_hand: (existing.vials_on_hand || 1) + 1, default_bac_water_ml: bac, default_draw_units: draw, dose_rec: rec, components: parsed.components })
         vialId = existing.id
       } else {
         const v = await addVial({
@@ -95,6 +95,7 @@ export default function ScanWizard({ vials = [], onDone }) {
           default_bac_water_ml: bac,
           default_draw_units: draw,
           vials_on_hand: 1,
+          dose_rec: rec,
         })
         vialId = v.id
       }
@@ -139,11 +140,23 @@ export default function ScanWizard({ vials = [], onDone }) {
       <div className="form wiz">
         <Stepper i={1} />
         <div className="title sm">{parsed.name}</div>
-        <div className="chips mb">
-          {parsed.components.map((c) => (
-            <span className="chip" key={c.name}><span className="dot" style={{ background: colorFor(c.name) }} /> {c.name} {c.mg}mg</span>
-          ))}
-        </div>
+        <label className="lbl">Strength <span className="muted">(edit if the scan missed it)</span></label>
+        {parsed.components.map((c, i) => (
+          <div className="comp-row" key={i}>
+            <span className="dot" style={{ background: colorFor(c.name) }} />
+            <span className="flex" style={{ fontSize: 13 }}>{c.name}</span>
+            <input
+              className="in mg"
+              type="number"
+              inputMode="decimal"
+              value={c.mg ?? ''}
+              onChange={(e) =>
+                setParsed((p) => ({ ...p, components: p.components.map((x, idx) => (idx === i ? { ...x, mg: e.target.value === '' ? '' : Number(e.target.value) } : x)) }))
+              }
+            />
+            <span className="muted sm">mg</span>
+          </div>
+        ))}
         <label className="lbl">Reconstitute with</label>
         <div className="dose-in">
           <button onClick={() => setBac((n) => Math.max(0.5, round(n - 0.5, 1)))}><i className="ti ti-minus" aria-hidden="true" /></button>

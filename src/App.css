@@ -616,3 +616,6 @@ input:focus, textarea:focus, select:focus {
 }
 
 .pep-edit { font-size: 12px; color: var(--muted); margin-left: 4px; vertical-align: 1px; }
+
+.pep-edit-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px 4px; vertical-align: 1px; }
+.pep-edit-btn .ti { font-size: 13px; }
