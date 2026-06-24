@@ -7,6 +7,7 @@ import Sheet from '../components/Sheet'
 import ScanWizard from '../components/ScanWizard'
 import VialForm from '../components/VialForm'
 import TakeSheet from '../components/TakeSheet'
+import LibraryBrowser from '../components/LibraryBrowser'
 
 function timeToday(t) {
   const [h, m] = (t || '08:00').split(':').map(Number)
@@ -23,6 +24,7 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
   const [scan, setScan] = useState(false)
   const [editVial, setEditVial] = useState(null)
   const [takeVial, setTakeVial] = useState(null)
+  const [addMode, setAddMode] = useState(null) // 'choose'|'library'|'manual'|{prefill}
 
   useEffect(() => {
     let on = true
@@ -189,7 +191,10 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
 
       {myVials.length > 0 && (
         <>
-          <div className="muted xs section-h">MY PEPTIDES</div>
+          <div className="section-h-row">
+            <span className="muted xs">MY PEPTIDES</span>
+            <button className="mini" onClick={() => setAddMode('choose')}><i className="ti ti-plus" aria-hidden="true" /> Add</button>
+          </div>
           {myVials.map((v) => (
             <PeptideRow
               key={v.id}
@@ -226,6 +231,34 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
             onConfirm={async (entry) => { await onQuickLog(entry); setTakeVial(null) }}
             onClose={() => setTakeVial(null)}
           />
+        </Sheet>
+      )}
+
+      {addMode === 'choose' && (
+        <Sheet title="Add a peptide" onClose={() => setAddMode(null)}>
+          <div className="choices">
+            <button className="choice" onClick={() => setAddMode('library')}>
+              <i className="ti ti-books" aria-hidden="true" /><span>From library</span><small>Browse or AI lookup</small>
+            </button>
+            <button className="choice" onClick={() => setAddMode('manual')}>
+              <i className="ti ti-pencil" aria-hidden="true" /><span>Manual</span><small>Type it in</small>
+            </button>
+          </div>
+        </Sheet>
+      )}
+      {addMode === 'library' && (
+        <Sheet title="From library" onClose={() => setAddMode(null)}>
+          <LibraryBrowser onPick={(prefill) => setAddMode({ prefill })} />
+        </Sheet>
+      )}
+      {addMode === 'manual' && (
+        <Sheet title="New vial" onClose={() => setAddMode(null)}>
+          <VialForm onDone={() => { setAddMode(null); onChanged?.() }} />
+        </Sheet>
+      )}
+      {addMode?.prefill && (
+        <Sheet title={`Add ${addMode.prefill.name}`} onClose={() => setAddMode(null)}>
+          <VialForm prefill={addMode.prefill} onDone={() => { setAddMode(null); onChanged?.() }} />
         </Sheet>
       )}
     </div>

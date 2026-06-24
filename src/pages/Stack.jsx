@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import Protocols from './Protocols'
-import Vials from './Vials'
 import Supplements from './Supplements'
 import Sheet from '../components/Sheet'
 import ProtocolBuilder from '../components/ProtocolBuilder'
 
-// "My Stack" = scheduled protocols, supplements, then your vial library.
+// "My Stack" = scheduled protocols + supplements (vials live on Today).
 export default function Stack({ vials, onLog, onChanged }) {
   const [builder, setBuilder] = useState(false)
   const [bump, setBump] = useState(0)
@@ -22,8 +21,6 @@ export default function Stack({ vials, onLog, onChanged }) {
       <Protocols key={`p${bump}`} vials={vials} onLog={onLog} />
       <div className="stack-divider" />
       <Supplements key={`s${bump}`} />
-      <div className="stack-divider" />
-      <Vials vials={vials} onChanged={onChanged} />
 
       {builder && (
         <Sheet title="Build with AI" onClose={() => setBuilder(false)}>

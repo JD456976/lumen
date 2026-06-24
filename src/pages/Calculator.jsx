@@ -7,6 +7,7 @@ import {
 import SyringeBar from '../components/SyringeBar'
 import Sheet from '../components/Sheet'
 import PeptideInfo from '../components/PeptideInfo'
+import Converter from '../components/Converter'
 
 export default function Calculator({ vials, onLog, onActiveVial }) {
   const [tool, setTool] = useState('dose') // 'dose' | 'recon'
@@ -81,11 +82,12 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
       </div>
 
       <div className="seg tool-seg">
-        <button className={tool === 'dose' ? 'on' : ''} onClick={() => setTool('dose')}>Dose calculator</button>
-        <button className={tool === 'recon' ? 'on' : ''} onClick={() => setTool('recon')}>Reconstitution</button>
+        <button className={tool === 'dose' ? 'on' : ''} onClick={() => setTool('dose')}>Dose</button>
+        <button className={tool === 'recon' ? 'on' : ''} onClick={() => setTool('recon')}>Reconstitute</button>
+        <button className={tool === 'convert' ? 'on' : ''} onClick={() => setTool('convert')}>Convert</button>
       </div>
 
-      {tool === 'dose' ? (
+      {tool === 'dose' && (
         <>
           <div className="head">
             <div className="title">{vial.name}</div>
@@ -187,7 +189,9 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
             })}>Log dose</button>
           </div>
         </>
-      ) : (
+      )}
+
+      {tool === 'recon' && (
         <div className="pad recon-tool">
           <div className="muted sm mb">Mix a vial and see the concentration. Values update live.</div>
           <div className="two">
@@ -235,6 +239,8 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
           </div>
         </div>
       )}
+
+      {tool === 'convert' && <Converter />}
 
       {infoName && (
         <Sheet title={infoName} onClose={() => setInfoName(null)}>

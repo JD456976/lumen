@@ -619,3 +619,17 @@ input:focus, textarea:focus, select:focus {
 
 .pep-edit-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px 4px; vertical-align: 1px; }
 .pep-edit-btn .ti { font-size: 13px; }
+
+/* section header with action */
+.section-h-row { display: flex; justify-content: space-between; align-items: center; margin: 14px 0 8px; }
+.section-h-row .mini { display: inline-flex; align-items: center; gap: 3px; }
+
+/* ── converter ── */
+.converter { display: flex; flex-direction: column; gap: 16px; }
+.conv-block { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.conv-row { display: flex; align-items: center; gap: 8px; }
+.conv-field { flex: 1; position: relative; }
+.conv-field .in { width: 100%; padding-right: 44px; }
+.conv-unit { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); pointer-events: none; }
+.conv-eq { color: var(--amber); font-size: 18px; flex: 0 0 auto; }
+.conv-factor { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
