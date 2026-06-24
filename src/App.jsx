@@ -101,6 +101,7 @@ export default function App() {
           {tab === 'stack' && <Stack vials={vials} onLog={setLogDraft} onChanged={refreshVials} />}
           {tab === 'log' && <LogPage refreshKey={logRefresh} />}
           {tab === 'research' && <Research vial={activeVial || vials[0]} vials={vials} />}
+          <p className="disclaimer">Personal dosing calculator and log. Not medical advice.</p>
         </div>
       </main>
 
@@ -116,8 +117,6 @@ export default function App() {
           </button>
         ))}
       </nav>
-
-      <p className="disclaimer">Personal dosing calculator and log. Not medical advice.</p>
 
       {logDraft && (
         <Sheet title="Log dose" onClose={() => setLogDraft(null)}>

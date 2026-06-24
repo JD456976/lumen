@@ -164,7 +164,16 @@ export default function ScanWizard({ vials = [], onDone }) {
           <button onClick={() => setBac((n) => round(n + 0.5, 1))}><i className="ti ti-plus" aria-hidden="true" /></button>
         </div>
         <div className="recon mt"><i className="ti ti-droplet" aria-hidden="true" /> {round(conc, 2)} mg/mL · {round(conc, 2)} mg per 100 units (full U-100 syringe)</div>
-        <button className="primary block mt" onClick={() => setStep('frequency')}>Next</button>
+        {parsed.components.some((c) => !c.mg || Number(c.mg) <= 0) && (
+          <div className="alert">Enter the strength (mg) for each peptide above so doses can be calculated.</div>
+        )}
+        <button
+          className="primary block mt"
+          disabled={parsed.components.some((c) => !c.mg || Number(c.mg) <= 0)}
+          onClick={() => setStep('frequency')}
+        >
+          Next
+        </button>
       </div>
     )
   }
