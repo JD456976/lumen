@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { SEED_VIALS } from './lib/library'
-import { listVials, addLog, decrementDoses } from './lib/db'
+import { listVials, addLog, decrementDoses, lastVialLog } from './lib/db'
 import Auth from './Auth'
 import Today from './pages/Today'
 import Calculator from './pages/Calculator'
@@ -30,6 +30,7 @@ export default function App() {
   const [logRefresh, setLogRefresh] = useState(0)
   const [logDraft, setLogDraft] = useState(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [pendingLog, setPendingLog] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -54,27 +55,38 @@ export default function App() {
   if (session === undefined) return <div className="app boot">Loading…</div>
   if (!session) return <div className="app"><Auth /></div>
 
-  async function quickLog(entry) {
+  async function commitLog(entry, opts = {}) {
+    await addLog(entry)
+    if (entry.vial_id && entry.status !== 'skipped') await decrementDoses(entry.vial_id)
+    setLogRefresh((n) => n + 1)
+    if (opts.goLog) {
+      setLogDraft(null)
+      setTab('log')
+    }
+  }
+
+  // Guard against accidental double-logging within an hour.
+  async function requestLog(entry, opts = {}) {
     try {
-      await addLog(entry)
-      if (entry.vial_id && entry.status !== 'skipped') await decrementDoses(entry.vial_id)
-      setLogRefresh((n) => n + 1)
+      if (entry.vial_id && entry.status !== 'skipped') {
+        const last = await lastVialLog(entry.vial_id)
+        if (last) {
+          const mins = Math.round((Date.now() - new Date(last.taken_at).getTime()) / 60000)
+          if (mins < 60) {
+            setPendingLog({ entry, opts, mins })
+            if (opts.goLog) setLogDraft(null)
+            return
+          }
+        }
+      }
+      await commitLog(entry, opts)
     } catch (e) {
       alert('Could not log: ' + (e.message || e))
     }
   }
 
-  async function confirmLog(entry) {
-    try {
-      await addLog(entry)
-      if (entry.vial_id && entry.status !== 'skipped') await decrementDoses(entry.vial_id)
-      setLogDraft(null)
-      setLogRefresh((n) => n + 1)
-      setTab('log')
-    } catch (e) {
-      alert('Could not log dose: ' + (e.message || e))
-    }
-  }
+  const quickLog = (entry) => requestLog(entry, {})
+  const confirmLog = (entry) => requestLog(entry, { goLog: true })
 
   return (
     <div className="app">
@@ -130,6 +142,19 @@ export default function App() {
         <Sheet title="Settings" onClose={() => setShowSettings(false)}>
           <Settings email={session.user?.email} />
         </Sheet>
+      )}
+
+      {pendingLog && (
+        <div className="dup-toast">
+          <div className="dup-msg">
+            <strong>Log {pendingLog.entry.vial_name} again?</strong>
+            <div className="muted sm">You logged it {pendingLog.mins === 0 ? 'less than a minute' : `${pendingLog.mins} min`} ago.</div>
+          </div>
+          <div className="dup-actions">
+            <button className="ghost wide" onClick={() => setPendingLog(null)}>Cancel</button>
+            <button className="primary" onClick={() => { const p = pendingLog; setPendingLog(null); commitLog(p.entry, p.opts) }}>Log again</button>
+          </div>
+        </div>
       )}
     </div>
   )

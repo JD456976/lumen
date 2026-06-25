@@ -640,3 +640,32 @@ input:focus, textarea:focus, select:focus {
 .pep-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .pep-pills .mini { display: inline-flex; align-items: center; gap: 6px; }
 .pep-pills .mini .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* custom dose in TakeSheet */
+.custom-dose { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 4px 0 6px; }
+.custom-dose .mini { display: inline-flex; align-items: center; gap: 5px; }
+.custom-in { display: flex; align-items: center; gap: 8px; }
+
+/* double-dose confirmation toast */
+.dup-toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%);
+  z-index: 60; width: 340px; max-width: calc(100% - 24px);
+  background: #1a1a20; border: 1px solid #3a2f17; border-radius: 16px; padding: 14px 16px;
+  box-shadow: 0 16px 40px -12px rgba(0,0,0,0.7); animation: fadeUp 0.22s ease both;
+}
+.dup-msg strong { color: var(--amber); font-weight: 600; }
+.dup-actions { display: flex; gap: 8px; margin-top: 12px; }
+.dup-actions .ghost { width: auto; flex: 1; padding: 11px; }
+
+/* vial dropdown selector (replaces tabs on Calc) */
+.vial-select-wrap {
+  display: flex; align-items: center; gap: 8px; margin: 12px 14px 4px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px;
+}
+.vial-select-wrap > .ti { color: var(--amber); font-size: 18px; flex: 0 0 auto; }
+.vial-select-wrap > .ti-chevron-down { color: var(--muted); font-size: 16px; }
+.vial-select {
+  flex: 1; appearance: none; background: none; border: none; color: var(--text);
+  font: inherit; font-size: 15px; font-weight: 500; padding: 12px 0; cursor: pointer; outline: none;
+}
+.vial-select option { background: var(--panel); color: var(--text); }

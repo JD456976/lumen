@@ -73,12 +73,14 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
 
   return (
     <div className="page">
-      <div className="vial-tabs">
-        {vials.map((v) => (
-          <button key={v.id} className={`vial-tab ${v.id === vial.id ? 'active' : ''}`} onClick={() => setVialId(v.id)}>
-            {v.name}
-          </button>
-        ))}
+      <div className="vial-select-wrap">
+        <i className="ti ti-flask-2" aria-hidden="true" />
+        <select className="vial-select" value={vial?.id || ''} onChange={(e) => setVialId(e.target.value)}>
+          {vials.map((v) => (
+            <option key={v.id} value={v.id}>{v.name}</option>
+          ))}
+        </select>
+        <i className="ti ti-chevron-down" aria-hidden="true" />
       </div>
 
       <div className="seg tool-seg">

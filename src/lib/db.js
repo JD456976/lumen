@@ -44,6 +44,18 @@ export async function updateVial(id, patch) {
   return data
 }
 
+// Most recent taken log for a vial (for the double-dose guard).
+export async function lastVialLog(vialId) {
+  const { data } = await supabase
+    .from('dose_logs')
+    .select('taken_at')
+    .eq('vial_id', vialId)
+    .eq('status', 'taken')
+    .order('taken_at', { ascending: false })
+    .limit(1)
+  return data?.[0] || null
+}
+
 // Tick a vial's directly-set doses-remaining counter down by one (if set).
 export async function decrementDoses(vialId) {
   const { data } = await supabase.from('vials').select('doses_remaining').eq('id', vialId).single()
