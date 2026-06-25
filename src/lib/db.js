@@ -44,6 +44,14 @@ export async function updateVial(id, patch) {
   return data
 }
 
+// Give a dose back to a vial's counter (e.g. when a log is deleted).
+export async function incrementDoses(vialId) {
+  const { data } = await supabase.from('vials').select('doses_remaining').eq('id', vialId).single()
+  if (data && data.doses_remaining != null) {
+    await supabase.from('vials').update({ doses_remaining: data.doses_remaining + 1 }).eq('id', vialId)
+  }
+}
+
 // Most recent taken log for a vial (for the double-dose guard).
 export async function lastVialLog(vialId) {
   const { data } = await supabase
