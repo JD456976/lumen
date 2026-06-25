@@ -92,7 +92,6 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
       {tool === 'dose' && (
         <>
           <div className="head">
-            <div className="title">{vial.name}</div>
             <div className="muted sm">
               {totalMg(components)} mg{components.length > 1 ? ' blend' : ''} · {syringe.id} syringe
             </div>
