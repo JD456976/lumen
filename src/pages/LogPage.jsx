@@ -3,6 +3,8 @@ import { listLogs, listProtocols, deleteLog, incrementDoses } from '../lib/db'
 import { fmtAmount } from '../lib/calc'
 import Calendar from '../components/Calendar'
 import InSystem from '../components/InSystem'
+import Sheet from '../components/Sheet'
+import LogEdit from '../components/LogEdit'
 
 export default function LogPage({ refreshKey }) {
   const [logs, setLogs] = useState([])
@@ -10,6 +12,8 @@ export default function LogPage({ refreshKey }) {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
   const [view, setView] = useState('history') // history | calendar | levels
+  const [editLog, setEditLog] = useState(null)
+  const [localBump, setLocalBump] = useState(0)
 
   useEffect(() => {
     let on = true
@@ -24,7 +28,7 @@ export default function LogPage({ refreshKey }) {
     return () => {
       on = false
     }
-  }, [refreshKey])
+  }, [refreshKey, localBump])
 
   async function remove(l) {
     await deleteLog(l.id)
@@ -41,10 +45,10 @@ export default function LogPage({ refreshKey }) {
 
   function card(l) {
     return (
-      <div className="log-card" key={l.id}>
+      <div className="log-card tappable" key={l.id} onClick={() => setEditLog(l)}>
         <div className="log-top">
           <span className="title sm">{l.vial_name || 'Dose'}</span>
-          <button className="icon-btn" aria-label="Delete" onClick={() => remove(l)}>
+          <button className="icon-btn" aria-label="Delete" onClick={(e) => { e.stopPropagation(); remove(l) }}>
             <i className="ti ti-trash" aria-hidden="true" />
           </button>
         </div>
@@ -60,6 +64,7 @@ export default function LogPage({ refreshKey }) {
           ))}
         </div>
         {l.side_effects && <div className="muted sm">Side effects: {l.side_effects}</div>}
+        {l.notes && <div className="muted sm">Note: {l.notes}</div>}
       </div>
     )
   }
@@ -105,6 +110,16 @@ export default function LogPage({ refreshKey }) {
         logs.length === 0
           ? <div className="muted sm">Log some doses to see estimated levels in your system.</div>
           : <InSystem logs={logs} />
+      )}
+
+      {editLog && (
+        <Sheet title="Edit dose" onClose={() => setEditLog(null)}>
+          <LogEdit
+            log={editLog}
+            recentLogs={logs}
+            onSaved={() => { setEditLog(null); setLocalBump((n) => n + 1) }}
+          />
+        </Sheet>
       )}
     </div>
   )

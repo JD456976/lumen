@@ -669,3 +669,7 @@ input:focus, textarea:focus, select:focus {
   font: inherit; font-size: 15px; font-weight: 500; padding: 12px 0; cursor: pointer; outline: none;
 }
 .vial-select option { background: var(--panel); color: var(--text); }
+
+.suggest-site { display: inline-flex; align-items: center; gap: 5px; margin: 0 0 8px; }
+.log-card.tappable { cursor: pointer; }
+.log-card.tappable:active { transform: scale(0.995); }

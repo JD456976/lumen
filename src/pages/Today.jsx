@@ -9,6 +9,15 @@ import VialForm from '../components/VialForm'
 import TakeSheet from '../components/TakeSheet'
 import LibraryBrowser from '../components/LibraryBrowser'
 
+function timeAgo(ms) {
+  const m = Math.floor((Date.now() - ms) / 60000)
+  if (m < 2) return 'just now'
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  return `${Math.floor(h / 24)}d ago`
+}
+
 function timeToday(t) {
   const [h, m] = (t || '08:00').split(':').map(Number)
   const d = new Date()
@@ -87,14 +96,24 @@ export default function Today({ vials = [], onLog, onQuickLog, onChanged, refres
   const hasToday = due.length > 0 || suppDue.length > 0
 
   const usedByVial = {}
-  for (const l of logs) if (l.vial_id && l.status !== 'skipped') usedByVial[l.vial_id] = (usedByVial[l.vial_id] || 0) + 1
-  const myVials = vials.filter((v) => v.persisted).map((v) => ({ ...v, _used: usedByVial[v.id] || 0 }))
+  const lastByVial = {}
+  for (const l of logs) {
+    if (!l.vial_id || l.status === 'skipped') continue
+    usedByVial[l.vial_id] = (usedByVial[l.vial_id] || 0) + 1
+    const t = new Date(l.taken_at).getTime()
+    if (!lastByVial[l.vial_id] || t > lastByVial[l.vial_id]) lastByVial[l.vial_id] = t
+  }
+  const myVials = vials.filter((v) => v.persisted).map((v) => ({ ...v, _used: usedByVial[v.id] || 0, _last: lastByVial[v.id] || null }))
+  const weekCount = logs.filter((l) => l.status !== 'skipped' && now - new Date(l.taken_at) < 7 * 86400000).length
 
   return (
     <div className="page pad">
       <div className="today-head">
         <div className="title">Today</div>
-        <div className="muted sm">{now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+        <div className="muted sm">
+          {now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}
+          {weekCount > 0 && ` · ${weekCount} dose${weekCount > 1 ? 's' : ''} this week`}
+        </div>
       </div>
 
       <button className="scan-btn" onClick={() => setScan(true)}>
@@ -288,7 +307,8 @@ function PeptideRow({ vial, onTake, onDelete, onEdit }) {
             </button>
           </div>
           <div className={`muted sm ${low ? 'pep-low' : ''}`}>
-            {left <= 0 ? 'Empty — swipe to remove' : `≈ ${left} doses left`}{vial.vials_on_hand > 1 ? ` · ${vial.vials_on_hand} vials` : ''}
+            {left <= 0 ? 'Empty — swipe to remove' : `≈ ${left} left`}
+            {vial._last ? ` · last ${timeAgo(vial._last)}` : ''}
           </div>
         </div>
         <button className="pep-take" onClick={onTake}>Take</button>

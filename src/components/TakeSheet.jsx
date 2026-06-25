@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react'
 import { listLogs, updateVial } from '../lib/db'
 import { doseForDraw, drawForTarget, fmtAmount, round } from '../lib/calc'
-import BodyMap from './BodyMap'
+import BodyMap, { SITES_FRONT, SITES_BACK } from './BodyMap'
+
+const ALL_SITES = [...SITES_FRONT, ...SITES_BACK].map((s) => s.id)
+function suggestedSite(logs) {
+  const last = {}
+  for (const l of logs) {
+    if (!l.site) continue
+    const t = new Date(l.taken_at).getTime()
+    if (!last[l.site] || t > last[l.site]) last[l.site] = t
+  }
+  const never = ALL_SITES.find((s) => !last[s])
+  if (never) return never
+  return ALL_SITES.slice().sort((a, b) => (last[a] || 0) - (last[b] || 0))[0]
+}
 
 function nowLocal() {
   const d = new Date()
@@ -123,6 +136,11 @@ export default function TakeSheet({ vial, onConfirm, onClose }) {
       </div>
 
       <label className="lbl">Injection site</label>
+      {!site && recentLogs.length > 0 && (
+        <button className="mini suggest-site" onClick={() => setSite(suggestedSite(recentLogs))}>
+          <i className="ti ti-rotate" aria-hidden="true" /> Rotate to {suggestedSite(recentLogs)}
+        </button>
+      )}
       <BodyMap logs={recentLogs} value={site} onChange={setSite} />
 
       {showDetails ? (

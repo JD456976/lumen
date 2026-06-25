@@ -99,6 +99,11 @@ export async function addLog(entry) {
   return data
 }
 
+export async function updateLog(id, patch) {
+  const { error } = await supabase.from('dose_logs').update(patch).eq('id', id)
+  if (error) throw error
+}
+
 export async function deleteLog(id) {
   const { error } = await supabase.from('dose_logs').delete().eq('id', id)
   if (error) throw error
