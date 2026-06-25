@@ -64,7 +64,7 @@ export default function Calculator({ vials, onLog, onActiveVial }) {
       <div className="empty">
         <i className="ti ti-flask-2" aria-hidden="true" />
         <p>No vials yet.</p>
-        <p className="muted sm">Add one from the Vials tab.</p>
+        <p className="muted sm">Scan or add one from the Today tab.</p>
       </div>
     )
   }

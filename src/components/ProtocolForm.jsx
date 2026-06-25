@@ -76,7 +76,7 @@ export default function ProtocolForm({ vials, onDone }) {
   }
 
   if (!usable.length) {
-    return <div className="muted sm">You need a saved vial first. Add one in the Vials tab.</div>
+    return <div className="muted sm">You need a saved vial first. Scan or add one on the Today tab.</div>
   }
 
   const showDays = frequency === 'custom' || frequency === 'weekly'
