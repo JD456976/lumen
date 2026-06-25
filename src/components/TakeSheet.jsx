@@ -3,6 +3,11 @@ import { listLogs, updateVial } from '../lib/db'
 import { doseForDraw, drawForTarget, fmtAmount, round } from '../lib/calc'
 import BodyMap from './BodyMap'
 
+function nowLocal() {
+  const d = new Date()
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+}
+
 export default function TakeSheet({ vial, onConfirm, onClose }) {
   const [rec, setRec] = useState(vial.dose_rec || null)
   const [loadingRec, setLoadingRec] = useState(!vial.dose_rec)
@@ -11,6 +16,9 @@ export default function TakeSheet({ vial, onConfirm, onClose }) {
   const [site, setSite] = useState(null)
   const [recentLogs, setRecentLogs] = useState([])
   const [busy, setBusy] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
+  const [notes, setNotes] = useState('')
+  const [takenAt, setTakenAt] = useState(nowLocal())
 
   const bac = vial.default_bac_water_ml || 2
   const primary = vial.components?.[0]
@@ -74,7 +82,8 @@ export default function TakeSheet({ vial, onConfirm, onClose }) {
       breakdown,
       site,
       status: 'taken',
-      taken_at: new Date().toISOString(),
+      notes: showDetails && notes.trim() ? notes.trim() : null,
+      taken_at: showDetails ? new Date(takenAt).toISOString() : new Date().toISOString(),
     })
     setBusy(false)
   }
@@ -115,6 +124,17 @@ export default function TakeSheet({ vial, onConfirm, onClose }) {
 
       <label className="lbl">Injection site</label>
       <BodyMap logs={recentLogs} value={site} onChange={setSite} />
+
+      {showDetails ? (
+        <>
+          <label className="lbl">When</label>
+          <input className="in" type="datetime-local" value={takenAt} onChange={(e) => setTakenAt(e.target.value)} />
+          <label className="lbl">Note</label>
+          <input className="in" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="how you felt, side effects…" />
+        </>
+      ) : (
+        <button className="link-btn mt" onClick={() => setShowDetails(true)}>+ Add note or change time</button>
+      )}
 
       <button className="primary block mt" disabled={busy || (pick === 'custom' && !customUnits)} onClick={confirm}>
         {busy ? 'Logging…' : 'Confirm taken'}
