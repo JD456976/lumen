@@ -6,19 +6,21 @@ const SYSTEM = `You give typical dosing recommendations for ONE peptide for a pr
 Return ONLY a JSON object in this exact shape:
 {
   "peptide": string,
-  "low_mcg": number,            // low end of typical per-dose range, in micrograms
-  "normal_mcg": number,         // common/typical per-dose amount, in micrograms
-  "high_mcg": number,           // high end of typical per-dose range, in micrograms
+  "low_mcg": number,            // cautious STARTING / titration-in per-dose amount (mcg)
+  "normal_mcg": number,         // the dose MOST people actually run for results — the commonly-cited EFFECTIVE per-dose amount (mcg)
+  "high_mcg": number,           // upper end of the commonly-used per-dose range (mcg)
   "frequency": string,          // e.g. "once daily", "every other day", "once weekly", "as needed"
   "timing": string,             // when to take and any fasting note, one sentence
   "cycle": string,              // whether/how it's cycled, or "typically run continuously"
-  "source": string              // e.g. "human clinical trials", "animal studies + community protocols (Reddit/forums)"
+  "source": string              // e.g. "human clinical trials", "community protocols (PepPedia/forums/Reddit)"
 }
 Rules:
-- The user administers ALL peptides by SUBCUTANEOUS INJECTION using a U-100 insulin syringe. Give doses for subcutaneous injectable use in micrograms — NOT oral/capsule dosing. If a compound is normally oral, give the typical injectable-research equivalent and note it in "source".
-- All three dose values are PER-DOSE micrograms (numbers only, no units in the value).
-- Base values on human clinical data where it exists; otherwise common community practice (forums/Reddit) and animal studies — state which in "source".
-- Be realistic and consistent (low <= normal <= high).
+- "normal_mcg" is the TYPICAL EFFECTIVE dose people actually run (what references like PepPedia / common protocols list as the standard dose) — NOT a conservative beginner dose. "low_mcg" is the cautious starting dose; "high_mcg" is the top of the common range. Do not under-dose "normal".
+- The three values MUST be strictly increasing: low_mcg < normal_mcg < high_mcg. Never make them equal.
+- Calibrate to mainstream community references and clinical data; e.g. CJC-1295/Ipamorelin normal ≈ 200 mcg (range 100–300). Match what experienced users and dosing references actually use.
+- The user administers ALL peptides by SUBCUTANEOUS INJECTION using a U-100 insulin syringe. Give injectable per-dose micrograms — NOT oral/capsule dosing. If a compound is normally oral, give the typical injectable-research equivalent and note it in "source".
+- All values are PER-DOSE micrograms (numbers only, no units in the value).
+- Base on human clinical data where it exists; otherwise common community practice — state which in "source".
 - This is informational, not medical advice.`
 
 export default async (req) => {
